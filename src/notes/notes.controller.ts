@@ -1,4 +1,4 @@
-import { Controller, Get, Param } from '@nestjs/common';
+import { Controller, Get, Param, Post } from '@nestjs/common';
 
 @Controller('notes')
 export class NotesController {
@@ -13,4 +13,9 @@ export class NotesController {
     findOne(@Param('id') id: string) {
         return `This router return the note ID ${id}`
         }
+
+    @Post()
+    create() {
+        return 'This route make a note'
+    }
 }
