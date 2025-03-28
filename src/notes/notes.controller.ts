@@ -1,21 +1,35 @@
-import { Controller, Get, Param, Post } from '@nestjs/common';
+import { Body, Controller, Get, Param, Post, Patch, Delete, Query } from '@nestjs/common';
 
 @Controller('notes')
 export class NotesController {
-    // find all notes
-    @Get()
-    findAll() {
-        return 'This router return all notes'
-    }
+  // find all notes
+  @Get()
+  findAll(@Query() pagination: any) {
+    const {limit = 10, offset = 0 } = pagination
+    return `This router return all notes limit=${limit}, Offset=${offset}`;
+  }
 
-    // Find one note
-    @Get(':id')
-    findOne(@Param('id') id: string) {
-        return `This router return the note ID ${id}`
-        }
+  // Find one note
+  @Get(':id')
+  findOne(@Param('id') id: string) {
+    return `This router return the note ID ${id}`;
+  }
 
-    @Post()
-    create() {
-        return 'This route make a note'
+  @Post()
+  create(@Body() body: any) {
+    return body;
+  }
+
+  @Patch(':id')
+  update(@Param('id') id: string, @Body() body: any) {
+    return {
+      id,
+      ...body,
     }
+  }
+
+  @Delete(':id')
+  removeNote(@Param(':id') id: string ) {
+    return 'note deleted'
+  }
 }
