@@ -9,4 +9,3 @@ import { NotesModule } from 'src/notes/notes.module';
   providers: [AppService],
 })
 export class AppModule {}
-

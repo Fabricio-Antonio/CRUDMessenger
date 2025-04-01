@@ -3,7 +3,7 @@ import { ManualConceptsController } from './manual-concepts.controller';
 import { ManualConceptsService } from './manual-concepts.service';
 
 @Module({
-    controllers: [ManualConceptsController],
-    providers: [ManualConceptsService],
+  controllers: [ManualConceptsController],
+  providers: [ManualConceptsService],
 })
 export class ManulaConceptsModule {}

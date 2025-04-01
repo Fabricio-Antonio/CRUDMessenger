@@ -7,6 +7,6 @@ export class AppService {
   }
 
   soluctionExample() {
-    return 'Example use servece'
+    return 'Example use servece';
   }
 }
