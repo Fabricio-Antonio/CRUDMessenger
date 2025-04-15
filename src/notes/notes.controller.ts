@@ -8,6 +8,8 @@ import {
   Delete,
 } from '@nestjs/common';
 import { NotesService } from './notes.service';
+import { CreateNoteDto } from './dto/create-note.dto';
+import { UpdateNoteDto } from './dto/update-note.dto';
 
 @Controller('notes')
 export class NotesController {
@@ -27,14 +29,14 @@ export class NotesController {
 
   // Create note
   @Post()
-  create(@Body() body: { name: string; content: string }) {
-    return this.notesServices.create(body)
+  create(@Body() createNoteDto: CreateNoteDto) {
+    return this.notesServices.create(createNoteDto)
   }
 
   // Update note
  @Patch(':id')
-update(@Param('id') id: string, @Body() body: any) {
-  return this.notesServices.update(id, body);
+update(@Param('id') id: string, @Body() updateNoteDto: UpdateNoteDto) {
+  return this.notesServices.update(id, updateNoteDto);
 }
 
   // Delete note

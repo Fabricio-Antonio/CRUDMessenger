@@ -1,5 +1,7 @@
 import { HttpException, HttpStatus, Injectable, NotFoundException } from '@nestjs/common';
 import { Note } from './entities/note.entity';
+import { CreateNoteDto } from './dto/create-note.dto';
+import { UpdateNoteDto } from './dto/update-note.dto';
 
 @Injectable()
 export class NotesService {
@@ -29,18 +31,20 @@ export class NotesService {
     this.throwNotFoundError();
   }
 
-  create(body: any) {
+  create(createNoteDto: CreateNoteDto) {
     this.lastId++;
     const id = this.lastId;
     const newNote = {
       id,
-      ...body,
+      ...createNoteDto,
+      read: false,
+      date: new Date(),
     };
     this.notes.push(newNote);
     return newNote;
   }
 
-  update(id: string, body: any) {
+  update(id: string, updateNoteDto: UpdateNoteDto) {
     const existingNoteIndex = this.notes.findIndex(item => item.id === +id);
     
     if (existingNoteIndex < 0) {
@@ -51,7 +55,7 @@ export class NotesService {
 
       this.notes[existingNoteIndex] = {
         ...existingNote,
-        ...body,
+        ...updateNoteDto,
       };
       return this.notes[existingNoteIndex];
   }
@@ -63,7 +67,7 @@ export class NotesService {
     }
     const note = this.notes[existingNoteIndex];
       this.notes.splice(existingNoteIndex, 1);
-      
+
       return note
   }
 }
