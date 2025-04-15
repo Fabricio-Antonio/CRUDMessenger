@@ -6,39 +6,40 @@ import {
   Post,
   Patch,
   Delete,
-  Query,
 } from '@nestjs/common';
+import { NotesService } from './notes.service';
 
 @Controller('notes')
 export class NotesController {
-  // find all notes
+  constructor(private readonly notesServices: NotesService) {}
+
+  // Find all notes
   @Get()
-  findAll(@Query() pagination: string) {
-    const { limit = 10, offset = 0 } = pagination;
-    return `This router return all notes limit=${limit}, Offset=${offset}`;
+  findAll() {
+    return this.notesServices.findAll();
   }
 
   // Find one note
   @Get(':id')
   findOne(@Param('id') id: string) {
-    return `This router return the note ID ${id}`;
+    return this.notesServices.findOne(id);
   }
 
+  // Create note
   @Post()
-  create(@Body() body: any) {
-    return body;
+  create(@Body() body: { name: string; content: string }) {
+    return this.notesServices.create(body)
   }
 
-  @Patch(':id')
-  update(@Param('id') id: string, @Body() body: string) {
-    return {
-      id,
-      ...body,
-    };
-  }
+  // Update note
+ @Patch(':id')
+update(@Param('id') id: string, @Body() body: any) {
+  return this.notesServices.update(id, body);
+}
 
+  // Delete note
   @Delete(':id')
-  removeNote(@Param(':id') id: string) {
-    return `Note with ID ${id} deleted`;
+  removeNote(@Param('id') id: string) {
+    return this.notesServices.delete(id);
   }
 }
