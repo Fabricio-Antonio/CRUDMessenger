@@ -1,4 +1,4 @@
-import { IsString, IsNotEmpty, MinLength, MaxLength } from 'class-validator'
+import { IsString, IsNotEmpty, MinLength, MaxLength, IsBoolean, IsOptional } from 'class-validator'
 
 export class CreateNoteDto {
     @IsString()
@@ -18,4 +18,8 @@ export class CreateNoteDto {
     @MinLength(2)
     @MaxLength(50)
     readonly from: string;
+
+    @IsOptional()
+    @IsBoolean()
+    readonly read: boolean;
 }

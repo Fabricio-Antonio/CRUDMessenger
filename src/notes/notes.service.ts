@@ -2,9 +2,16 @@ import { HttpException, HttpStatus, Injectable, NotFoundException } from '@nestj
 import { Note } from './entities/note.entity';
 import { CreateNoteDto } from './dto/create-note.dto';
 import { UpdateNoteDto } from './dto/update-note.dto';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
 
 @Injectable()
 export class NotesService {
+  constructor(
+    @InjectRepository(Note)
+    private readonly noteRepository: Repository<Note>,
+  ) {}
+
   private lastId = 1;
   private notes: Note[] = [
     {
@@ -20,54 +27,54 @@ export class NotesService {
   throwNotFoundError() {
     throw new NotFoundException('Note not found');
   }
-  findAll() {
-    return this.notes;
+
+  async findAll() {
+    const notes = await this.noteRepository.find()
+    return notes;
   }
 
-  findOne(id: string) {
-    const note = this.notes.find(item => item.id === +id);
+  async findOne(id: number) {
+    const note = await this.noteRepository.findOne({
+      where: {
+        id,
+      },
+    });
     if (note) return note;
     //throw new HttpException('Note not found.', HttpStatus.NOT_FOUND);
     this.throwNotFoundError();
   }
 
-  create(createNoteDto: CreateNoteDto) {
-    this.lastId++;
-    const id = this.lastId;
+  async create(createNoteDto: CreateNoteDto) {
     const newNote = {
-      id,
       ...createNoteDto,
       read: false,
       date: new Date(),
     };
-    this.notes.push(newNote);
-    return newNote;
+    const note = await this.noteRepository.create(newNote)
+    return this.noteRepository.save(note);
   }
 
-  update(id: string, updateNoteDto: UpdateNoteDto) {
-    const existingNoteIndex = this.notes.findIndex(item => item.id === +id);
-    
-    if (existingNoteIndex < 0) {
-        this.throwNotFoundError();
+  async update(id: number, updateNoteDto: UpdateNoteDto) {
+    const particalUpdateNoteDto = {
+      read: updateNoteDto?.read,
+      text: updateNoteDto?.text,
     }
-    
-      const existingNote = this.notes[existingNoteIndex];
+    const note = await this.noteRepository.preload({
+      id,
+      ...particalUpdateNoteDto,
+    });
 
-      this.notes[existingNoteIndex] = {
-        ...existingNote,
-        ...updateNoteDto,
-      };
-      return this.notes[existingNoteIndex];
+    if (!note) return this.throwNotFoundError();
+    await this.noteRepository.save(note)
+    return note
   }
 
-  delete(id: string) {
-    const existingNoteIndex = this.notes.findIndex(item => item.id === +id);
-    if (existingNoteIndex < 0) {
-        this.throwNotFoundError();
-    }
-    const note = this.notes[existingNoteIndex];
-      this.notes.splice(existingNoteIndex, 1);
+  async delete(id: number) {
+    const note = await this.noteRepository.findOneBy({
+      id,
+    });
 
-      return note
+    if (!note) return this.throwNotFoundError();
+    return this.noteRepository.remove(note)
   }
 }
