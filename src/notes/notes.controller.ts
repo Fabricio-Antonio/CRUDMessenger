@@ -30,14 +30,14 @@ export class NotesController {
   // Create note
   @Post()
   create(@Body() createNoteDto: CreateNoteDto) {
-    return this.notesServices.create(createNoteDto)
+    return this.notesServices.create(createNoteDto);
   }
 
   // Update note
- @Patch(':id')
-update(@Param('id') id: string, @Body() updateNoteDto: UpdateNoteDto) {
-  return this.notesServices.update(+id, updateNoteDto);
-}
+  @Patch(':id')
+  update(@Param('id') id: string, @Body() updateNoteDto: UpdateNoteDto) {
+    return this.notesServices.update(+id, updateNoteDto);
+  }
 
   // Delete note
   @Delete(':id')
