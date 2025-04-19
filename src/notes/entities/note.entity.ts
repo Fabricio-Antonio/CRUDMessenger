@@ -7,7 +7,6 @@ import {
   PrimaryGeneratedColumn,
   ManyToOne,
   JoinColumn,
-  OneToMany,
 } from 'typeorm';
 
 @Entity()
@@ -18,11 +17,11 @@ export class Note {
   @Column({ type: 'varchar', length: 255 })
   text: string;
 
-  @ManyToOne(() => Person)
+  @ManyToOne(() => Person, { onDelete: 'CASCADE', onUpdate: 'CASCADE' })
   @JoinColumn({ name: 'to' })
   to: Person;
 
-  @ManyToOne(() => Person)
+  @ManyToOne(() => Person, { onDelete: 'CASCADE', onUpdate: 'CASCADE' })
   @JoinColumn({ name: 'from' })
   from: Person;
 

@@ -44,7 +44,6 @@ export class PeopleService {
         id: 'desc',
       },
     });
-
     return people;
   }
 
@@ -53,8 +52,9 @@ export class PeopleService {
       id,
     });
     if (!person) {
-      throw new NotFoundException('Person dont found');
+      throw new NotFoundException('Person not found');
     }
+    return person;
   }
 
   async update(id: number, updatePersonDto: UpdatePersonDto) {
