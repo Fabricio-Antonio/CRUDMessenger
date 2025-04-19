@@ -1,20 +1,32 @@
-import { Column, CreateDateColumn, Entity, UpdateDateColumn, PrimaryGeneratedColumn } from "typeorm";
+import { Person } from 'src/people/entities/person.entity';
+import {
+  Column,
+  CreateDateColumn,
+  Entity,
+  UpdateDateColumn,
+  PrimaryGeneratedColumn,
+  ManyToOne,
+  JoinColumn,
+  OneToMany,
+} from 'typeorm';
 
 @Entity()
 export class Note {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @Column({type: 'varchar', length: 255})
+  @Column({ type: 'varchar', length: 255 })
   text: string;
 
-  @Column({type: 'varchar', length: 50})
-  to: string;
+  @ManyToOne(() => Person)
+  @JoinColumn({ name: 'to' })
+  to: Person;
 
-  @Column({type: 'varchar', length: 50})
-  from: string;
+  @ManyToOne(() => Person)
+  @JoinColumn({ name: 'from' })
+  from: Person;
 
-  @Column({default: false})
+  @Column({ default: false })
   read: boolean;
 
   @Column()
