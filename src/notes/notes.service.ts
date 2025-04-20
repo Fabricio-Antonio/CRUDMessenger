@@ -5,6 +5,8 @@ import { UpdateNoteDto } from './dto/update-note.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { PeopleService } from 'src/people/people.service';
+import { PaginationDto } from 'src/common/dto/pagination.dto';
+import { skip } from 'node:test';
 
 @Injectable()
 export class NotesService {
@@ -18,8 +20,12 @@ export class NotesService {
     throw new NotFoundException('Note not found');
   }
 
-  async findAll() {
+  async findAll(paginationDto?: PaginationDto) {
+    const { limit = 10, offset = 0 } = paginationDto;
+
     const notes = await this.noteRepository.find({
+      take: limit,
+      skip: offset,
       relations: ['to', 'from'],
       order: {
         id: 'desc',
@@ -59,7 +65,6 @@ export class NotesService {
       },
     });
     if (note) return note;
-    //throw new HttpException('Note not found.', HttpStatus.NOT_FOUND);
     this.throwNotFoundError();
   }
 

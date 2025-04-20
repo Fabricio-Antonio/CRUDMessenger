@@ -6,10 +6,12 @@ import {
   Post,
   Patch,
   Delete,
+  Query,
 } from '@nestjs/common';
 import { NotesService } from './notes.service';
 import { CreateNoteDto } from './dto/create-note.dto';
 import { UpdateNoteDto } from './dto/update-note.dto';
+import { PaginationDto } from 'src/common/dto/pagination.dto';
 
 @Controller('notes')
 export class NotesController {
@@ -17,8 +19,11 @@ export class NotesController {
 
   // Find all notes
   @Get()
-  findAll() {
-    return this.notesServices.findAll();
+  async findAll(@Query() paginationDto: PaginationDto) {
+    const { limit = 10, offset = 0 } = paginationDto;
+    
+    const notes = await this.notesServices.findAll();
+    return notes;
   }
 
   // Find one note
