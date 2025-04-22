@@ -7,11 +7,13 @@ import {
   Patch,
   Delete,
   Query,
+  UsePipes,
 } from '@nestjs/common';
 import { NotesService } from './notes.service';
 import { CreateNoteDto } from './dto/create-note.dto';
 import { UpdateNoteDto } from './dto/update-note.dto';
 import { PaginationDto } from 'src/common/dto/pagination.dto';
+import { ParseIntIdPipe } from 'src/common/pipes/parse-int-id.pipe';
 
 @Controller('notes')
 export class NotesController {
@@ -20,16 +22,16 @@ export class NotesController {
   // Find all notes
   @Get()
   async findAll(@Query() paginationDto: PaginationDto) {
-    const { limit = 10, offset = 0 } = paginationDto;
-    
+    return this.notesServices.findAll(paginationDto);
+
     const notes = await this.notesServices.findAll();
     return notes;
   }
 
   // Find one note
   @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.notesServices.findOne(+id);
+  findOne(@Param('id') id: number) {
+    return this.notesServices.findOne(id);
   }
 
   // Create note
@@ -40,13 +42,13 @@ export class NotesController {
 
   // Update note
   @Patch(':id')
-  update(@Param('id') id: string, @Body() updateNoteDto: UpdateNoteDto) {
-    return this.notesServices.update(+id, updateNoteDto);
+  update(@Param('id') id: number, @Body() updateNoteDto: UpdateNoteDto) {
+    return this.notesServices.update(id, updateNoteDto);
   }
 
   // Delete note
   @Delete(':id')
-  removeNote(@Param('id') id: string) {
-    return this.notesServices.delete(+id);
+  removeNote(@Param('id') id: number) {
+    return this.notesServices.delete(id);
   }
 }
