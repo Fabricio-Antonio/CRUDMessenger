@@ -1,11 +1,11 @@
-export class { NestMiddleware } from '@nestjs/common'
+import { NestMiddleware } from '@nestjs/common';
+import { Request, Response, NextFunction } from 'express';
 
 export class SimpleMiddleware implements NestMiddleware {
-    use(req: Request, res: Response, next: NextFunction) {
-        throw new Error('Method not implemeted.')
-
-        return res.status(404).send({
-            mensage: 'test'
-        })
-    }
+  use(req: Request, res: Response, next: NextFunction) {
+    console.log('Alright');
+    setTimeout(() => {
+      next();
+    }, 2000);
+  }
 }
