@@ -7,13 +7,11 @@ import {
   Patch,
   Delete,
   Query,
-  UsePipes,
 } from '@nestjs/common';
 import { NotesService } from './notes.service';
 import { CreateNoteDto } from './dto/create-note.dto';
 import { UpdateNoteDto } from './dto/update-note.dto';
 import { PaginationDto } from 'src/common/dto/pagination.dto';
-import { ParseIntIdPipe } from 'src/common/pipes/parse-int-id.pipe';
 
 @Controller('notes')
 export class NotesController {
