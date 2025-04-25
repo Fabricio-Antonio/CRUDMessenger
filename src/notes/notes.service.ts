@@ -6,7 +6,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { PeopleService } from 'src/people/people.service';
 import { PaginationDto } from 'src/common/dto/pagination.dto';
-import { skip } from 'node:test';
+import { NotesUtils } from './notes.utils';
 
 @Injectable()
 export class NotesService {
@@ -14,6 +14,7 @@ export class NotesService {
     @InjectRepository(Note)
     private readonly noteRepository: Repository<Note>,
     private readonly peopleService: PeopleService,
+    private readonly notesUtils: NotesUtils,
   ) {}
 
   throwNotFoundError() {
@@ -21,6 +22,7 @@ export class NotesService {
   }
 
   async findAll(paginationDto?: PaginationDto) {
+    console.log(this.notesUtils.invertStrintg('Hello World'));
     const { limit = 10, offset = 0 } = paginationDto;
 
     const notes = await this.noteRepository.find({

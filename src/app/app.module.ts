@@ -5,6 +5,7 @@ import { NotesModule } from 'src/notes/notes.module';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { PeopleModule } from 'src/people/people.module';
+import { NotesUtils } from '../notes/notes.utils';
 
 @Module({
   imports: [
@@ -27,6 +28,6 @@ import { PeopleModule } from 'src/people/people.module';
     PeopleModule,
   ],
   controllers: [AppController],
-  providers: [AppService],
+  providers: [AppService, NotesUtils],
 })
 export class AppModule {}
