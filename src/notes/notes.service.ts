@@ -82,7 +82,7 @@ export class NotesService {
       read: false,
       date: new Date(),
     };
-    const note = await this.noteRepository.create(newNote);
+    const note = this.noteRepository.create(newNote);
     await this.noteRepository.save(note);
 
     return {
