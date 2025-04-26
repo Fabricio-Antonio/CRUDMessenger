@@ -7,19 +7,30 @@ import {
   Patch,
   Delete,
   Query,
+  Inject,
 } from '@nestjs/common';
 import { NotesService } from './notes.service';
 import { CreateNoteDto } from './dto/create-note.dto';
 import { UpdateNoteDto } from './dto/update-note.dto';
 import { PaginationDto } from 'src/common/dto/pagination.dto';
+import { NotesUtils } from './notes.utils';
+import { RegexProtocol } from 'src/common/regex/regex.protocol';
+import { SERVER_NAME } from 'src/notes/notes.constants';
 
 @Controller('notes')
 export class NotesController {
-  constructor(private readonly notesServices: NotesService) {}
+  constructor(
+    @Inject(SERVER_NAME)
+    private readonly serverName: string,
+    private readonly notesServices: NotesService,
+    private readonly notesUtils: NotesUtils,
+    private readonly regexProtocol: RegexProtocol,
+  ) {}
 
   // Find all notes
   @Get()
   async findAll(@Query() paginationDto: PaginationDto) {
+    console.log(this.regexProtocol.execute(this.serverName));
     return this.notesServices.findAll(paginationDto);
 
     const notes = await this.notesServices.findAll();

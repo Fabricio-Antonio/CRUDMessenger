@@ -22,7 +22,7 @@ export class NotesService {
   }
 
   async findAll(paginationDto?: PaginationDto) {
-    console.log(this.notesUtils.invertStrintg('Hello World'));
+    //console.log(this.notesUtils.invertStrintg('Hello World'));
     const { limit = 10, offset = 0 } = paginationDto;
 
     const notes = await this.noteRepository.find({
