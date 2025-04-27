@@ -6,10 +6,13 @@ import { Note } from './entities/note.entity';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { PeopleModule } from 'src/people/people.module';
 import { NotesUtils } from './notes.utils';
-import { RegexProtocol } from 'src/common/regex/regex.protocol';
 import { RemoveSpacesRegex } from 'src/common/regex/remove-spacees.regex';
 import { OnlyLowerCaseLettersRegex } from 'src/common/regex/only-lowercase-latters.regex';
-import { SERVER_NAME } from './notes.constants';
+import {
+  ONLY_LOWERCASE_LETTERS,
+  REMOVE_SPACES,
+  SERVER_NAME,
+} from './notes.constants';
 
 @Module({
   imports: [TypeOrmModule.forFeature([Note]), PeopleModule],
@@ -22,8 +25,12 @@ import { SERVER_NAME } from './notes.constants';
       useValue: 'My Name Is NestJS',
     },
     {
-      provide: RegexProtocol,
-      useClass: 1 !== 1 ? RemoveSpacesRegex : OnlyLowerCaseLettersRegex,
+      provide: ONLY_LOWERCASE_LETTERS,
+      useClass: OnlyLowerCaseLettersRegex,
+    },
+    {
+      provide: REMOVE_SPACES,
+      useClass: RemoveSpacesRegex,
     },
   ],
 })
