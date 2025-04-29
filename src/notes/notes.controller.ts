@@ -20,7 +20,6 @@ export class NotesController {
     private readonly notesServices: NotesService,
     private readonly notesUtils: NotesUtils,
   ) {}
-
   // Find all notes
   @Get()
   async findAll(@Query() paginationDto: PaginationDto) {

@@ -6,9 +6,17 @@ import { Note } from './entities/note.entity';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { PeopleModule } from 'src/people/people.module';
 import { NotesUtils } from './notes.utils';
+import { MyDynamicModule } from 'src/my-dynamic/my-dynamic.module';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([Note]), PeopleModule],
+  imports: [
+    TypeOrmModule.forFeature([Note]),
+    PeopleModule,
+    MyDynamicModule.register({
+      apiKey: 'API KEY here',
+      apiUrl: 'http://test.com',
+    }),
+  ],
   controllers: [NotesController],
   providers: [NotesService, NotesUtils],
 })
