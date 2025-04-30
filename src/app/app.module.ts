@@ -3,26 +3,23 @@ import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { NotesModule } from 'src/notes/notes.module';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { ConfigModule, ConfigService } from '@nestjs/config';
+import { ConfigModule } from '@nestjs/config';
 import { PeopleModule } from 'src/people/people.module';
 import { NotesUtils } from '../notes/notes.utils';
 
 @Module({
   imports: [
     ConfigModule.forRoot({ isGlobal: true }), // Torna acessível em toda a aplicação
-    TypeOrmModule.forRootAsync({
-      imports: [ConfigModule],
-      inject: [ConfigService],
-      useFactory: (configService: ConfigService) => ({
-        type: 'postgres',
-        host: configService.get('DB_HOST'),
-        port: parseInt(configService.get('DB_PORT', '5432')),
-        username: configService.get('DB_USERNAME'),
-        password: configService.get('DB_PASSWORD'),
-        database: configService.get('DB_NAME'),
-        autoLoadEntities: true,
-        synchronize: true, // NEVER must be true in prod
-      }),
+    ConfigModule.forRoot(),
+    TypeOrmModule.forRoot({
+      type: process.env.DB_TYPE as 'postgres',
+      host: process.env.DB_HOST,
+      port: Number(process.env.DB_PORT),
+      username: process.env.DB_USERNAME,
+      password: process.env.DB_PASSWORD,
+      database: process.env.DB_NAME,
+      autoLoadEntities: Boolean(process.env.DB_AUTOLOAD_ENTITIES),
+      synchronize: Boolean(process.env.DB_SYNCHRONIZE), // NEVER must be true in prod
     }),
     NotesModule,
     PeopleModule,
