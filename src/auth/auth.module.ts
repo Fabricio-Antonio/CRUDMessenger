@@ -5,10 +5,15 @@ import { AuthController } from './auth.controller';
 import { AuthService } from './auth.service';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { Person } from 'src/people/entities/person.entity';
+import jwtConfig from './config/jwt.config';
+import { ConfigModule } from '@nestjs/config';
 
 @Global()
 @Module({
-  imports: [TypeOrmModule.forFeature([Person])],
+  imports: [
+    TypeOrmModule.forFeature([Person]),
+    ConfigModule.forFeature(jwtConfig),
+  ],
   controllers: [AuthController],
   providers: [
     {
