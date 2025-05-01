@@ -6,6 +6,7 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { ConfigModule } from '@nestjs/config';
 import { PeopleModule } from 'src/people/people.module';
 import { NotesUtils } from '../notes/notes.utils';
+import { AuthModule } from 'src/auth/auth.module';
 
 @Module({
   imports: [
@@ -23,6 +24,7 @@ import { NotesUtils } from '../notes/notes.utils';
     }),
     NotesModule,
     PeopleModule,
+    AuthModule,
   ],
   controllers: [AppController],
   providers: [AppService, NotesUtils],

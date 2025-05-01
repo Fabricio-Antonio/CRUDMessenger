@@ -8,19 +8,24 @@ import { UpdatePersonDto } from './dto/update-person.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Person } from './entities/person.entity';
 import { Repository } from 'typeorm';
+import { HashingServiceProtocol } from '../auth/hasing/hasing.service';
 
 @Injectable()
 export class PeopleService {
   constructor(
     @InjectRepository(Person)
     private readonly personRepository: Repository<Person>,
+    private readonly hashingService: HashingServiceProtocol,
   ) {}
 
   async create(createPersonDto: CreatePersonDto) {
     try {
+      const passwordHash = await this.hashingService.hash(
+        createPersonDto.password,
+      );
       const personData = {
         name: createPersonDto.name,
-        passwordHash: createPersonDto.password,
+        passwordHash,
         email: createPersonDto.email,
       };
 
@@ -59,9 +64,15 @@ export class PeopleService {
 
   async update(id: number, updatePersonDto: UpdatePersonDto) {
     const personData = {
-      name: updatePersonDto.name,
-      passwordHash: updatePersonDto.password,
+      name: updatePersonDto?.name,
     };
+    if (updatePersonDto?.password) {
+      const passwordHash = await this.hashingService.hash(
+        updatePersonDto.password,
+      );
+
+      personData['passwordHash'] = passwordHash;
+    }
     const person = await this.personRepository.preload({
       id,
       ...personData,
