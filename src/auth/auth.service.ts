@@ -7,6 +7,7 @@ import { HashingServiceProtocol } from './hasing/hasing.service';
 import jwtConfig from './config/jwt.config';
 import { Inject } from '@nestjs/common';
 import { ConfigType } from '@nestjs/config';
+import { JwtService } from '@nestjs/jwt';
 
 @Injectable()
 export class AuthService {
@@ -16,6 +17,7 @@ export class AuthService {
     private readonly hashingService: HashingServiceProtocol,
     @Inject(jwtConfig.KEY)
     private readonly jwtConfiguration: ConfigType<typeof jwtConfig>,
+    private readonly jwtService: JwtService,
   ) {
     console.log(jwtConfiguration);
   }
@@ -39,9 +41,20 @@ export class AuthService {
       if (thrownError) {
         throw new UnauthorizedException('Invalid credentials');
       }
-
+      const acessToken = await this.jwtService.signAsync(
+        {
+          sub: person.id,
+          email: person.email,
+        },
+        {
+          audience: this.jwtConfiguration.audience,
+          issuer: this.jwtConfiguration.issuer,
+          expiresIn: this.jwtConfiguration.jwtTtl,
+          secret: this.jwtConfiguration.secret,
+        },
+      );
       return {
-        mansage: 'Login successful',
+        acessToken,
       };
     }
   }
