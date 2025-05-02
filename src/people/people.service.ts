@@ -9,6 +9,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Person } from './entities/person.entity';
 import { Repository } from 'typeorm';
 import { HashingServiceProtocol } from '../auth/hasing/hasing.service';
+import { TokenPayloadDto } from 'src/auth/dto/token.payload.dto';
 
 @Injectable()
 export class PeopleService {
@@ -62,7 +63,11 @@ export class PeopleService {
     return person;
   }
 
-  async update(id: number, updatePersonDto: UpdatePersonDto) {
+  async update(
+    id: number,
+    updatePersonDto: UpdatePersonDto,
+    tokenPayload: TokenPayloadDto,
+  ) {
     const personData = {
       name: updatePersonDto?.name,
     };
@@ -80,10 +85,14 @@ export class PeopleService {
     if (!person) {
       throw new NotFoundException('Person dont found');
     }
+
+    if (person.id !== Number(tokenPayload.sub)) {
+      throw new NotFoundException('You are not this person');
+    }
     return this.personRepository.save(person);
   }
 
-  async remove(id: number) {
+  async remove(id: number, tokenPayload: TokenPayloadDto) {
     const person = await this.personRepository.findOneBy({
       id,
     });
