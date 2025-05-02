@@ -6,15 +6,18 @@ import {
   Patch,
   Param,
   Delete,
+  UseGuards,
 } from '@nestjs/common';
 import { PeopleService } from './people.service';
 import { CreatePersonDto } from './dto/create-person.dto';
 import { UpdatePersonDto } from './dto/update-person.dto';
+import { AuthTokenGuard } from 'src/auth/guard/auth.token.guard';
 
 @Controller('people')
 export class PeopleController {
   constructor(private readonly peopleService: PeopleService) {}
 
+  @UseGuards(AuthTokenGuard)
   @Post()
   create(@Body() createPersonDto: CreatePersonDto) {
     return this.peopleService.create(createPersonDto);
