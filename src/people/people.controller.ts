@@ -7,24 +7,28 @@ import {
   Param,
   Delete,
   UseGuards,
+  Req,
 } from '@nestjs/common';
 import { PeopleService } from './people.service';
 import { CreatePersonDto } from './dto/create-person.dto';
 import { UpdatePersonDto } from './dto/update-person.dto';
 import { AuthTokenGuard } from 'src/auth/guard/auth.token.guard';
+import { REQUEST_TOKEN_PAYLOAD_KEY } from 'src/auth/auth.constants';
+import { Request } from 'express';
 
+@UseGuards(AuthTokenGuard)
 @Controller('people')
 export class PeopleController {
   constructor(private readonly peopleService: PeopleService) {}
 
-  @UseGuards(AuthTokenGuard)
   @Post()
   create(@Body() createPersonDto: CreatePersonDto) {
     return this.peopleService.create(createPersonDto);
   }
 
   @Get()
-  findAll() {
+  findAll(@Req() req: Request) {
+    console.log(req[REQUEST_TOKEN_PAYLOAD_KEY].sub);
     return this.peopleService.findAll();
   }
 
