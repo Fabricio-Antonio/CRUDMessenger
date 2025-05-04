@@ -94,7 +94,7 @@ export class PeopleService {
 
   async remove(id: number, tokenPayload: TokenPayloadDto) {
     const person = await this.personRepository.findOneBy({
-      id,
+      id, 
     });
 
     if (!person) {

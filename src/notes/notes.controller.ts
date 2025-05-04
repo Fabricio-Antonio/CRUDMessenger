@@ -7,12 +7,16 @@ import {
   Patch,
   Delete,
   Query,
+  UseGuards,
 } from '@nestjs/common';
 import { NotesService } from './notes.service';
 import { CreateNoteDto } from './dto/create-note.dto';
 import { UpdateNoteDto } from './dto/update-note.dto';
 import { PaginationDto } from 'src/common/dto/pagination.dto';
 import { NotesUtils } from './notes.utils';
+import { AuthTokenGuard } from 'src/auth/guard/auth.token.guard';
+import { TokenPayload } from 'src/auth/params/token.payload.param';
+import { TokenPayloadDto } from 'src/auth/dto/token.payload.dto';
 
 @Controller('notes')
 export class NotesController {
@@ -36,20 +40,33 @@ export class NotesController {
   }
 
   // Create note
+  @UseGuards(AuthTokenGuard)
   @Post()
-  create(@Body() createNoteDto: CreateNoteDto) {
-    return this.notesServices.create(createNoteDto);
+  create(
+    @Body() createNoteDto: CreateNoteDto,
+    @TokenPayload() tokenPayload: TokenPayloadDto,
+  ) {
+    return this.notesServices.create(createNoteDto, tokenPayload);
   }
 
   // Update note
+  @UseGuards(AuthTokenGuard)
   @Patch(':id')
-  update(@Param('id') id: number, @Body() updateNoteDto: UpdateNoteDto) {
-    return this.notesServices.update(id, updateNoteDto);
+  update(
+    @Param('id') id: number,
+    @Body() updateNoteDto: UpdateNoteDto,
+    @TokenPayload() tokenPayload: TokenPayloadDto,
+  ) {
+    return this.notesServices.update(id, updateNoteDto, tokenPayload);
   }
 
   // Delete note
+  @UseGuards(AuthTokenGuard)
   @Delete(':id')
-  removeNote(@Param('id') id: number) {
-    return this.notesServices.delete(id);
+  removeNote(
+    @Param('id') id: number,
+    @TokenPayload() tokenPayload: TokenPayloadDto,
+  ) {
+    return this.notesServices.delete(id, tokenPayload);
   }
 }

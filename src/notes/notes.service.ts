@@ -7,6 +7,7 @@ import { Repository } from 'typeorm';
 import { PeopleService } from 'src/people/people.service';
 import { PaginationDto } from 'src/common/dto/pagination.dto';
 import { NotesUtils } from './notes.utils';
+import { TokenPayloadDto } from 'src/auth/dto/token.payload.dto';
 
 @Injectable()
 export class NotesService {
@@ -70,9 +71,9 @@ export class NotesService {
     this.throwNotFoundError();
   }
 
-  async create(createNoteDto: CreateNoteDto) {
-    const { toId, fromId } = createNoteDto;
-    const to = await this.peopleService.findOne(toId);
+  async create(createNoteDto: CreateNoteDto, tokenPayload: TokenPayloadDto) {
+    const { fromId } = createNoteDto;
+    const to = await this.peopleService.findOne(Number(tokenPayload.sub));
     const from = await this.peopleService.findOne(fromId);
 
     const newNote = {
@@ -89,14 +90,16 @@ export class NotesService {
       ...note,
       to: {
         id: note.to.id,
+        name: note.to.name,
       },
       from: {
         id: note.from.id,
+        name: note.from.name
       },
     };
   }
 
-  async update(id: number, updateNoteDto: UpdateNoteDto) {
+  async update(id: number, updateNoteDto: UpdateNoteDto, tokenPayload: TokenPayloadDto) {
     const note = await this.findOne(id);
 
     note.text = updateNoteDto?.text ?? note.text;
@@ -106,7 +109,7 @@ export class NotesService {
     return note;
   }
 
-  async delete(id: number) {
+  async delete(id: number, tokenPayload: TokenPayloadDto) {
     const note = await this.noteRepository.findOneBy({
       id,
     });
