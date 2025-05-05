@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { ForbiddenException, Injectable, NotFoundException } from '@nestjs/common';
 import { Note } from './entities/note.entity';
 import { CreateNoteDto } from './dto/create-note.dto';
 import { UpdateNoteDto } from './dto/update-note.dto';
@@ -94,13 +94,21 @@ export class NotesService {
       },
       from: {
         id: note.from.id,
-        name: note.from.name
+        name: note.from.name,
       },
     };
   }
 
-  async update(id: number, updateNoteDto: UpdateNoteDto, tokenPayload: TokenPayloadDto) {
+  async update(
+    id: number,
+    updateNoteDto: UpdateNoteDto,
+    tokenPayload: TokenPayloadDto,
+  ) {
     const note = await this.findOne(id);
+
+    if (note.from.id != Number(tokenPayload.sub)) {
+      throw new ForbiddenException('You are not allowed to update this note')
+    }
 
     note.text = updateNoteDto?.text ?? note.text;
     note.read = updateNoteDto?.read ?? note.read;
@@ -110,9 +118,11 @@ export class NotesService {
   }
 
   async delete(id: number, tokenPayload: TokenPayloadDto) {
-    const note = await this.noteRepository.findOneBy({
-      id,
-    });
+    const note = await this.findOne(id);
+
+    if (note.from.id != Number(tokenPayload.sub)) {
+      throw new ForbiddenException('You are not allowed to update this note')
+    }
 
     if (!note) return this.throwNotFoundError();
     return this.noteRepository.remove(note);
