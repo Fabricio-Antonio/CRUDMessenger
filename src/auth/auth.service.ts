@@ -37,24 +37,31 @@ export class AuthService {
     if (!passwordIsValid) {
       throw new UnauthorizedException('Credenciais inválidas.');
     }
+    return this.createTokens(person);
+  }
 
-    const accessToken = await this.signJwtAsync<Partial<Person>>(
+  private async createTokens(person: Person) {
+    const accessTokenPromise = this.signJwtAsync<Partial<Person>>(
       person.id,
       this.jwtConfiguration.jwtTtl,
       { email: person.email },
     );
 
-    const refreshToken = await this.signJwtAsync(
+    const refreshTokenPromise = this.signJwtAsync(
       person.id,
       this.jwtConfiguration.jwtRefreshTtl,
     );
+
+    const[accessToken, refreshToken] = await Promise.all([
+      accessTokenPromise,
+      refreshTokenPromise,
+    ]);
 
     return {
       accessToken,
       refreshToken,
     };
   }
-
   private async signJwtAsync<T>(sub: number, expiresIn: number, payload?: T) {
     return await this.jwtService.signAsync(
       {
@@ -70,7 +77,19 @@ export class AuthService {
     );
   }
 
-  refreshTokens(refreshTokenDto: RefreshTokenDto) {
-    return true;
+  async refreshTokens(refreshTokenDto: RefreshTokenDto) {
+    try {
+      const { sub } = await this.jwtService.verifyAsync(
+        refreshTokenDto.refreshToken,
+        this.jwtConfiguration,
+      );
+      const person = await this.personRepository.findOneBy({ id: sub });
+      if (!person) {
+        throw new Error('User not found');
+      }
+      return this.createTokens(person);
+    } catch (error) {
+      throw new UnauthorizedException(error.message);
+    }
   }
 }
