@@ -1,13 +1,13 @@
-import { Injectable, UnauthorizedException } from '@nestjs/common';
+import { Inject, Injectable, UnauthorizedException } from '@nestjs/common';
 import { LoginDto } from './dto/login.dto';
 import { Repository } from 'typeorm';
 import { Person } from 'src/people/entities/person.entity';
 import { InjectRepository } from '@nestjs/typeorm';
 import { HashingServiceProtocol } from './hasing/hasing.service';
 import jwtConfig from './config/jwt.config';
-import { Inject } from '@nestjs/common';
 import { ConfigType } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
+import { RefreshTokenDto } from './dto/refresh-toke-token.dto';
 
 @Injectable()
 export class AuthService {
@@ -18,44 +18,59 @@ export class AuthService {
     @Inject(jwtConfig.KEY)
     private readonly jwtConfiguration: ConfigType<typeof jwtConfig>,
     private readonly jwtService: JwtService,
-  ) {
-    console.log(jwtConfiguration);
-  }
-  async login(loginDto: LoginDto) {
-    let passwordIsValid = false;
-    let thrownError = true;
+  ) {}
 
+  async login(loginDto: LoginDto) {
     const person = await this.personRepository.findOneBy({
       email: loginDto.email,
     });
 
-    if (person) {
-      const passwordIsValid = await this.hashingService.comparePassword(
-        loginDto.password,
-        person.passwordHash,
-      );
-      if (!passwordIsValid) {
-        thrownError = false;
-      }
-
-      if (thrownError) {
-        throw new UnauthorizedException('Invalid credentials');
-      }
-      const acessToken = await this.jwtService.signAsync(
-        {
-          sub: person.id,
-          email: person.email,
-        },
-        {
-          audience: this.jwtConfiguration.audience,
-          issuer: this.jwtConfiguration.issuer,
-          expiresIn: this.jwtConfiguration.jwtTtl,
-          secret: this.jwtConfiguration.secret,
-        },
-      );
-      return {
-        acessToken,
-      };
+    if (!person) {
+      throw new UnauthorizedException('Usuário não existe.');
     }
+
+    const passwordIsValid = await this.hashingService.comparePassword(
+      loginDto.password,
+      person.passwordHash,
+    );
+
+    if (!passwordIsValid) {
+      throw new UnauthorizedException('Credenciais inválidas.');
+    }
+
+    const accessToken = await this.signJwtAsync<Partial<Person>>(
+      person.id,
+      this.jwtConfiguration.jwtTtl,
+      { email: person.email },
+    );
+
+    const refreshToken = await this.signJwtAsync(
+      person.id,
+      this.jwtConfiguration.jwtRefreshTtl,
+    );
+
+    return {
+      accessToken,
+      refreshToken,
+    };
+  }
+
+  private async signJwtAsync<T>(sub: number, expiresIn: number, payload?: T) {
+    return await this.jwtService.signAsync(
+      {
+        sub,
+        ...payload,
+      },
+      {
+        audience: this.jwtConfiguration.audience,
+        issuer: this.jwtConfiguration.issuer,
+        secret: this.jwtConfiguration.secret,
+        expiresIn,
+      },
+    );
+  }
+
+  refreshTokens(refreshTokenDto: RefreshTokenDto) {
+    return true;
   }
 }
