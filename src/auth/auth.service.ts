@@ -23,10 +23,11 @@ export class AuthService {
   async login(loginDto: LoginDto) {
     const person = await this.personRepository.findOneBy({
       email: loginDto.email,
+      active: true,
     });
 
     if (!person) {
-      throw new UnauthorizedException('Usuário não existe.');
+      throw new UnauthorizedException('Unauthorized acess');
     }
 
     const passwordIsValid = await this.hashingService.comparePassword(
@@ -35,7 +36,7 @@ export class AuthService {
     );
 
     if (!passwordIsValid) {
-      throw new UnauthorizedException('Credenciais inválidas.');
+      throw new UnauthorizedException('invalid credentials');
     }
     return this.createTokens(person);
   }
@@ -79,17 +80,23 @@ export class AuthService {
 
   async refreshTokens(refreshTokenDto: RefreshTokenDto) {
     try {
-      const { sub } = await this.jwtService.verifyAsync(
+      const { sub } = await this.jwtService.verifyAsync<{ sub: number }>(
         refreshTokenDto.refreshToken,
         this.jwtConfiguration,
       );
-      const person = await this.personRepository.findOneBy({ id: sub });
+      const person = await this.personRepository.findOneBy({
+        id: sub,
+        active: true,
+      });
       if (!person) {
-        throw new Error('User not found');
+        throw new Error('Unauthorized access');
       }
       return this.createTokens(person);
     } catch (error) {
-      throw new UnauthorizedException(error.message);
+      if (error instanceof Error) {
+        throw new UnauthorizedException(error.message);
+      }
+      throw new UnauthorizedException('An unknown error occurred');
     }
   }
 }

@@ -35,4 +35,7 @@ export class Person {
 
   @OneToMany(() => Note, note => note.from)
   noteReceived: Note[];
+
+  @Column({ default: true })
+  active: boolean;
 }
