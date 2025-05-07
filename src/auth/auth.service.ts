@@ -52,7 +52,7 @@ export class AuthService {
       this.jwtConfiguration.jwtRefreshTtl,
     );
 
-    const[accessToken, refreshToken] = await Promise.all([
+    const [accessToken, refreshToken] = await Promise.all([
       accessTokenPromise,
       refreshTokenPromise,
     ]);
