@@ -8,6 +8,7 @@ import {
   Delete,
   Query,
   UseGuards,
+  SetMetadata,
 } from '@nestjs/common';
 import { NotesService } from './notes.service';
 import { CreateNoteDto } from './dto/create-note.dto';
@@ -17,7 +18,12 @@ import { NotesUtils } from './notes.utils';
 import { AuthTokenGuard } from 'src/auth/guard/auth.token.guard';
 import { TokenPayload } from 'src/auth/params/token.payload.param';
 import { TokenPayloadDto } from 'src/auth/dto/token.payload.dto';
+import { RoutePolicyGuard } from 'src/auth/guard/route-policy.guard';
+import { ROUTE_POLICY_KEY } from 'src/auth/auth.constants';
+import { SetRoutePolicy } from '../auth/config/decorators/set-route-policy.decorator';
+import { RoutePolicies } from '../auth/enum/route-policies.enum';
 
+@UseGuards(RoutePolicyGuard)
 @Controller('notes')
 export class NotesController {
   constructor(
@@ -26,6 +32,7 @@ export class NotesController {
   ) {}
   // Find all notes
   @Get()
+  @SetRoutePolicy(RoutePolicies.findAllNotes)
   async findAll(@Query() paginationDto: PaginationDto) {
     return this.notesServices.findAll(paginationDto);
 
