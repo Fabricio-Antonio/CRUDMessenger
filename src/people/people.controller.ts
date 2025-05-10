@@ -7,6 +7,8 @@ import {
   Param,
   Delete,
   UseGuards,
+  UploadedFile,
+  UseInterceptors,
 } from '@nestjs/common';
 import { PeopleService } from './people.service';
 import { CreatePersonDto } from './dto/create-person.dto';
@@ -14,6 +16,7 @@ import { UpdatePersonDto } from './dto/update-person.dto';
 import { AuthTokenGuard } from 'src/auth/guard/auth.token.guard';
 import { TokenPayload } from 'src/auth/params/token.payload.param';
 import { TokenPayloadDto } from 'src/auth/dto/token.payload.dto';
+import { FileInterceptor } from '@nestjs/platform-express';
 
 @Controller('people')
 export class PeopleController {
@@ -53,5 +56,21 @@ export class PeopleController {
     @TokenPayload() tokenPayload: TokenPayloadDto,
   ) {
     return this.peopleService.remove(+id, tokenPayload);
+  }
+
+  @UseGuards(AuthTokenGuard)
+  @UseInterceptors(FileInterceptor('file'))
+  @Post('upload-picture')
+  uploadPicture(
+    @UploadedFile() file: Express.Multer.File,
+    @TokenPayload() tokenPayload: TokenPayloadDto,
+  ) {
+    return {
+      fieldname: file.fieldname,
+      originalname: file.originalname,
+      mimetype: file.mimetype,
+      buffer: {},
+      size: file.size,
+    };
   }
 }
