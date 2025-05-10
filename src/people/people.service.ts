@@ -10,7 +10,6 @@ import { Person } from './entities/person.entity';
 import { Repository } from 'typeorm';
 import { HashingServiceProtocol } from '../auth/hasing/hasing.service';
 import { TokenPayloadDto } from 'src/auth/dto/token.payload.dto';
-import { RoutePolicies } from 'src/auth/enum/route-policies.enum';
 
 @Injectable()
 export class PeopleService {
@@ -29,7 +28,6 @@ export class PeopleService {
         name: createPersonDto.name,
         passwordHash,
         email: createPersonDto.email,
-        routePolicies: createPersonDto.routePolicies,
       };
 
       const newPerson = this.personRepository.create(personData);

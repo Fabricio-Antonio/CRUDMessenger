@@ -18,12 +18,10 @@ import { NotesUtils } from './notes.utils';
 import { AuthTokenGuard } from 'src/auth/guard/auth.token.guard';
 import { TokenPayload } from 'src/auth/params/token.payload.param';
 import { TokenPayloadDto } from 'src/auth/dto/token.payload.dto';
-import { RoutePolicyGuard } from 'src/auth/guard/route-policy.guard';
-import { ROUTE_POLICY_KEY } from 'src/auth/auth.constants';
 import { SetRoutePolicy } from '../auth/config/decorators/set-route-policy.decorator';
 import { RoutePolicies } from '../auth/enum/route-policies.enum';
 
-@UseGuards(RoutePolicyGuard)
+@UseGuards(AuthTokenGuard)
 @Controller('notes')
 export class NotesController {
   constructor(
