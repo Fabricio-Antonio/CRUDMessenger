@@ -10,6 +10,8 @@ import { Person } from './entities/person.entity';
 import { Repository } from 'typeorm';
 import { HashingServiceProtocol } from '../auth/hasing/hasing.service';
 import { TokenPayloadDto } from 'src/auth/dto/token.payload.dto';
+import * as path from 'path';
+import * as fs from 'fs/promises';
 
 @Injectable()
 export class PeopleService {
@@ -94,12 +96,29 @@ export class PeopleService {
 
   async remove(id: number, tokenPayload: TokenPayloadDto) {
     const person = await this.personRepository.findOneBy({
-      id, 
+      id,
     });
 
     if (!person) {
       throw new NotFoundException('person dont found');
     }
     return this.personRepository.remove(person);
+  }
+
+  async uploadPicture(
+    file: Express.Multer.File,
+    tokenPayload: TokenPayloadDto,
+  ) {
+    const person = await this.findOne(Number(tokenPayload.sub));
+    const fileExtension = path
+      .extname(file.originalname)
+      .toLowerCase()
+      .substring(1);
+    const fileName = `${tokenPayload.sub}.${fileExtension}`;
+    const fileFullPath = path.resolve(process.cwd(), 'pictures', fileName);
+    await fs.writeFile(fileFullPath, file.buffer);
+    person.picture = fileName;
+    await this.personRepository.save(person);
+    return person;
   }
 }
