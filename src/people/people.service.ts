@@ -8,7 +8,7 @@ import { UpdatePersonDto } from './dto/update-person.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Person } from './entities/person.entity';
 import { Repository } from 'typeorm';
-import { HashingServiceProtocol } from '../auth/hasing/hasing.service';
+import { HashingServiceProtocol } from '../auth/hashing/hashing.service';
 import { TokenPayloadDto } from 'src/auth/dto/token.payload.dto';
 import * as path from 'path';
 import * as fs from 'fs/promises';

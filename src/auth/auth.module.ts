@@ -1,6 +1,6 @@
 import { Global, Module } from '@nestjs/common';
-import { HashingServiceProtocol } from './hasing/hasing.service';
-import { BcryptService } from './hasing/bcrypt.service';
+import { HashingServiceProtocol } from './hashing/hasing.service';
+import { BcryptService } from './hashing/bcrypt.service';
 import { AuthController } from './auth.controller';
 import { AuthService } from './auth.service';
 import { TypeOrmModule } from '@nestjs/typeorm';

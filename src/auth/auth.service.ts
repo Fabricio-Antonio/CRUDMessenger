@@ -3,7 +3,7 @@ import { LoginDto } from './dto/login.dto';
 import { Repository } from 'typeorm';
 import { Person } from 'src/people/entities/person.entity';
 import { InjectRepository } from '@nestjs/typeorm';
-import { HashingServiceProtocol } from './hasing/hasing.service';
+import { HashingServiceProtocol } from './hashing/hasing.service';
 import jwtConfig from './config/jwt.config';
 import { ConfigType } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';

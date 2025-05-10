@@ -1,4 +1,4 @@
-import { HashingServiceProtocol } from './hasing.service';
+import { HashingServiceProtocol } from './hashing.service';
 import * as bcrypt from 'bcryptjs';
 
 export class BcryptService extends HashingServiceProtocol {
