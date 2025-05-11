@@ -5,6 +5,8 @@ import { Repository } from 'typeorm';
 import { HashingServiceProtocol } from '../auth/hashing/hashing.service';
 import { getRepositoryToken } from '@nestjs/typeorm';
 import { CreatePersonDto } from './dto/create-person.dto';
+import { ConflictException } from '@nestjs/common';
+import { error } from 'console';
 
 describe('PeopleService', () => {
   let service: PeopleService;
@@ -86,6 +88,24 @@ describe('PeopleService', () => {
 
       // Does the personRepository.create method return the newly created person?
       expect(result).toEqual(newPerson);
+    });
+
+    it('should throw an error if the person already exists with', async () => {
+      jest.spyOn(personRepository, 'save').mockRejectedValue({
+        code: '23505',
+      });
+
+      await expect(service.create({} as any)).rejects.toThrow(
+        ConflictException,
+      );
+    });
+
+    it('should throw an error if the person already exists with a generic error', async () => {
+      jest
+        .spyOn(personRepository, 'save')
+        .mockRejectedValue(new Error('generic error'));
+
+      await expect(service.create({} as any)).rejects.toThrow(Error);
     });
   });
 });
