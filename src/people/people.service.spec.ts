@@ -26,6 +26,7 @@ describe('PeopleService', () => {
             findOneBy: jest.fn(),
             find: jest.fn(),
             preload: jest.fn(),
+            remove: jest.fn(),
           },
         },
         {
@@ -211,6 +212,39 @@ describe('PeopleService', () => {
 
       await expect(
         peopleService.update(personId, updatePersonDto, tokenPayLoad),
+      ).rejects.toThrow(NotFoundException);
+    });
+  });
+  describe('remove', () => {
+    it('should remove a person if authorizated', async () => {
+      const personId = 1;
+      const tokenPayLoad = { sub: personId } as any;
+      const extistingPerson = { id: personId, name: 'Fabricio' };
+
+      jest
+        .spyOn(peopleService, 'findOne')
+        .mockResolvedValue(extistingPerson as any);
+      jest
+        .spyOn(personRepository, 'remove')
+        .mockResolvedValue(extistingPerson as any);
+
+      const result = await peopleService.remove(personId, tokenPayLoad);
+
+      expect(peopleService.findOne).toHaveBeenCalledWith(personId);
+      expect(personRepository.remove).toHaveBeenCalledWith(extistingPerson);
+      expect(result).toEqual(extistingPerson);
+    });
+    it('should throw an error if the person is unauthorized', async () => {
+      const personId = 1;
+      const tokenPayLoad = { sub: 2 } as any;
+      const extistingPerson = { id: personId, name: 'Fabricio' };
+
+      jest
+        .spyOn(peopleService, 'findOne')
+        .mockResolvedValue(extistingPerson as any);
+
+      await expect(
+        peopleService.remove(personId, tokenPayLoad),
       ).rejects.toThrow(NotFoundException);
     });
   });
