@@ -5,9 +5,17 @@ import { Repository } from 'typeorm';
 import { HashingServiceProtocol } from '../auth/hashing/hashing.service';
 import { getRepositoryToken } from '@nestjs/typeorm';
 import { CreatePersonDto } from './dto/create-person.dto';
-import { ConflictException, NotFoundException } from '@nestjs/common';
+import {
+  ConflictException,
+  NotFoundException,
+  BadRequestException,
+} from '@nestjs/common';
 import { error } from 'console';
-import { NotFoundError } from 'rxjs';
+import { buffer, NotFoundError } from 'rxjs';
+import * as path from 'path';
+import * as fs from 'fs/promises';
+
+jest.mock('fs/promises');
 
 describe('PeopleService', () => {
   let peopleService: PeopleService;
@@ -246,6 +254,41 @@ describe('PeopleService', () => {
       await expect(
         peopleService.remove(personId, tokenPayLoad),
       ).rejects.toThrow(NotFoundException);
+    });
+  });
+  describe('uploadPicture', () => {
+    it('should upload a picture', async () => {
+      const mockFile = {
+        originalname: 'test.jpg',
+        size: 12345,
+        buffer: Buffer.from('file content'),
+      } as Express.Multer.File;
+
+      const mockPerson = {
+        id: 1,
+        name: 'Fabricio',
+        email: 'fabricio@gmail.com',
+      } as Person;
+
+      const tokenPayload = { sub: 1 } as any;
+
+      jest.spyOn(peopleService, 'findOne').mockResolvedValue(mockPerson as any);
+      jest.spyOn(personRepository, 'save').mockResolvedValue({
+        ...mockPerson,
+        picture: '1.jpg',
+      });
+      const filePath = path.resolve(process.cwd(), 'pictures', '1.jpg');
+
+      const result = await peopleService.uploadPicture(mockFile, tokenPayload);
+      expect(fs.writeFile).toHaveBeenCalledWith(filePath, mockFile.buffer);
+      expect(personRepository.save).toHaveBeenCalledWith({
+        ...mockPerson,
+        picture: '1.jpg',
+      });
+      expect(result).toEqual({
+        ...mockPerson,
+        picture: '1.jpg',
+      });
     });
   });
 });
