@@ -25,6 +25,7 @@ describe('PeopleService', () => {
             save: jest.fn(),
             findOneBy: jest.fn(),
             find: jest.fn(),
+            preload: jest.fn(),
           },
         },
         {
@@ -147,9 +148,70 @@ describe('PeopleService', () => {
       jest.spyOn(personRepository, 'find').mockResolvedValue(peopleMock as any);
 
       const result = await peopleService.findAll();
-      
+
       expect(result).toEqual(peopleMock);
-      expect(personRepository.find).toHaveBeenCalledWith({order: {id: 'desc'}});
+      expect(personRepository.find).toHaveBeenCalledWith({
+        order: { id: 'desc' },
+      });
+    });
+  });
+  describe('update', () => {
+    it('should update a person if authorizated', async () => {
+      //Arrange
+      const personId = 1;
+      const updatePersonDto = { name: 'Fabricio', password: '654321' };
+      const tokenPayLoad = { sub: personId } as any;
+      const passwordHash = 'PASSWORDHASH';
+      const updatedPerson = { id: personId, name: 'Fabricio', passwordHash };
+
+      jest
+        .spyOn(hashingServiceProtocol, 'hash')
+        .mockResolvedValue(passwordHash);
+      jest
+        .spyOn(personRepository, 'preload')
+        .mockResolvedValue(updatedPerson as any);
+      jest
+        .spyOn(personRepository, 'save')
+        .mockResolvedValue(updatedPerson as any);
+
+      // Act
+      const result = await peopleService.update(
+        personId,
+        updatePersonDto,
+        tokenPayLoad,
+      );
+
+      // Assert
+      expect(hashingServiceProtocol.hash).toHaveBeenCalledWith(
+        updatePersonDto.password,
+      );
+      expect(personRepository.preload).toHaveBeenCalledWith({
+        id: personId,
+        name: updatePersonDto.name,
+        passwordHash,
+      });
+      expect(personRepository.save).toHaveBeenCalledWith(updatedPerson);
+      expect(result).toEqual(updatedPerson);
+    });
+    it('should throw an error if the person is not found', async () => {
+      const personId = 1;
+      const tokenPayLoad = { sub: personId } as any;
+      const updatePersonDto = { name: 'Fabricio' };
+
+      jest.spyOn(personRepository, 'preload').mockResolvedValue(null);
+
+      await expect(
+        peopleService.update(personId, updatePersonDto, tokenPayLoad),
+      ).rejects.toThrow(NotFoundException);
+    });
+    it('should throw an error if the person is unauthorized', async () => {
+      const personId = 1;
+      const tokenPayLoad = { sub: 2 } as any;
+      const updatePersonDto = { name: 'Fabricio' };
+
+      await expect(
+        peopleService.update(personId, updatePersonDto, tokenPayLoad),
+      ).rejects.toThrow(NotFoundException);
     });
   });
 });
