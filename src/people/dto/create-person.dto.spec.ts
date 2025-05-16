@@ -16,5 +16,30 @@ describe('CreatePersonDto', () => {
     dto.name = 'Fabricio';
     dto.email = 'invalid-email';
     dto.password = '@Bc123456';
+    const errors = await validate(dto);
+    expect(errors.length).toBeGreaterThan(0);
+    expect(errors[0].property).toBe('email');
+  });
+
+  it('should fail validation with short password', async () => {
+    const dto = new CreatePersonDto();
+    dto.name = 'Fabricio';
+    dto.email = 'fabricio@email.com';
+    dto.password = 'short';
+
+    const errors = await validate(dto);
+    expect(errors.length).toBeGreaterThan(0);
+    expect(errors[0].property).toBe('password');
+  });
+
+  it('should fail validation with missing name', async () => {
+    const dto = new CreatePersonDto();
+    dto.name = '';
+    dto.email = 'fabricio@email.com';
+    dto.password = '@Bc123456';
+
+    const errors = await validate(dto);
+    expect(errors.length).toBeGreaterThan(0);
+    expect(errors[0].property).toBe('name');
   });
 });
