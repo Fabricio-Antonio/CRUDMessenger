@@ -1,5 +1,5 @@
 import { Global, Module } from '@nestjs/common';
-import { HashingServiceProtocol } from './hashing/hasing.service';
+import { HashingServiceProtocol } from './hashing/hashing.service';
 import { BcryptService } from './hashing/bcrypt.service';
 import { AuthController } from './auth.controller';
 import { AuthService } from './auth.service';
