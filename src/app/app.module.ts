@@ -13,14 +13,15 @@ import { AuthModule } from 'src/auth/auth.module';
     ConfigModule.forRoot({ isGlobal: true }), // Torna acessível em toda a aplicação
     ConfigModule.forRoot(),
     TypeOrmModule.forRoot({
-      type: process.env.DB_TYPE as 'postgres',
-      host: process.env.DB_HOST,
-      port: Number(process.env.DB_PORT),
-      username: process.env.DB_USERNAME,
-      password: process.env.DB_PASSWORD,
-      database: process.env.DB_NAME,
-      autoLoadEntities: Boolean(process.env.DB_AUTOLOAD_ENTITIES),
-      synchronize: Boolean(process.env.DB_SYNCHRONIZE), // NEVER must be true in prod
+      type: 'prostgres',
+      host: 'localhost',
+      port: '5432',
+      username: 'postgres',
+      password: 'testing',
+      database: '123456',
+      autoLoadEntities: true,
+      synchronize: true,
+      dropSchemas: true,
     }),
     NotesModule,
     PeopleModule,
