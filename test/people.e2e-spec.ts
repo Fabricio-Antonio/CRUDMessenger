@@ -1,5 +1,5 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { INestApplication, ValidationPipe } from '@nestjs/common';
+import { HttpStatus, INestApplication, ValidationPipe } from '@nestjs/common';
 import * as request from 'supertest';
 import { App } from 'supertest/types';
 import { PeopleModule } from 'src/people/people.module';
@@ -7,7 +7,8 @@ import { AuthModule } from 'src/auth/auth.module';
 import { NotesModule } from 'src/notes/notes.module';
 import { ConfigModule } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { ParseIntIdPipe } from 'src/common/pipes/parse-int-id.pipe';
+import * as path from 'path';
+import { ServeStaticModule } from '@nestjs/serve-static';
 import appConfig from 'src/app/config/app.config';
 
 describe('AppController (e2e)', () => {
@@ -19,14 +20,19 @@ describe('AppController (e2e)', () => {
         ConfigModule.forRoot({ isGlobal: true }), // Torna acessível em toda a aplicação
         ConfigModule.forRoot(),
         TypeOrmModule.forRoot({
-          type: process.env.DB_TYPE as 'postgres',
-          host: process.env.DB_HOST,
-          port: Number(process.env.DB_PORT),
-          username: process.env.DB_USERNAME,
-          password: process.env.DB_PASSWORD,
-          database: process.env.DB_NAME,
-          autoLoadEntities: Boolean(process.env.DB_AUTOLOAD_ENTITIES),
-          synchronize: Boolean(process.env.DB_SYNCHRONIZE), // NEVER must be true in prod
+          type: 'postgres',
+          host: 'localhost',
+          port: 5432,
+          username: 'postgres',
+          password: '123456',
+          database: 'testing',
+          autoLoadEntities: true,
+          synchronize: true, // NEVER must be true in prod
+          dropSchema: true,
+        }),
+        ServeStaticModule.forRoot({
+          rootPath: path.resolve(__dirname, '..', '..', 'pictures'),
+          serveRoot: '/pictures',
         }),
         NotesModule,
         PeopleModule,
@@ -45,7 +51,26 @@ describe('AppController (e2e)', () => {
     await app.close();
   });
 
-  it('/ (GET)', () => {
-    //
+  describe('/people (POST)', () => {
+    it('should create a new person', async () => {
+      const createPersonDto = {
+        name: 'Fabricio',
+        email: 'fabricio@email.com',
+        password: '@Bc123456',
+      };
+      const response = await request(app.getHttpServer())
+        .post('/people')
+        .send(createPersonDto);
+      expect(response.body).toEqual({
+        email: createPersonDto.email,
+        name: createPersonDto.name,
+        passwordHash: expect.any(String),
+        active: true,
+        createdAt: expect.any(String),
+        updatedAt: expect.any(String),
+        picture: '',
+        id: expect.any(Number),
+      });
+    });
   });
 });
