@@ -73,4 +73,26 @@ describe('AppController (e2e)', () => {
       });
     });
   });
+  descsribe('/people/:id (GET)', () => {
+    it('should return unauthorized when user logged', async () => {
+      const personResponse = await request(app.getHttpServer())
+        .post('/people')
+        .send({
+          name: 'Fabricio',
+          email: 'fabricio@emial',
+          password: '@Bc123456',
+        })
+        .expect(HttpStatus.CREATED);
+      const response = await request(app.getHttpServer())
+        .get('/people' + personResponse.body.id)
+        .expect(HttpStatus.UNAUTHORIZED);
+
+      expect(response.body).toEqual({
+        message: 'Unauthorized',
+        error: 'Unauthorized',
+        statusCode: 401,
+      });
+
+    });
+  });
 });
