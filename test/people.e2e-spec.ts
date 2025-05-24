@@ -10,6 +10,8 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import * as path from 'path';
 import { ServeStaticModule } from '@nestjs/serve-static';
 import appConfig from 'src/app/config/app.config';
+import { NoConnectionOptionError } from 'typeorm';
+import { CreatePersonDto } from 'src/people/dto/create-person.dto';
 
 describe('AppController (e2e)', () => {
   let app: INestApplication<App>;
@@ -73,26 +75,62 @@ describe('AppController (e2e)', () => {
       });
     });
   });
-  descsribe('/people/:id (GET)', () => {
-    it('should return unauthorized when user logged', async () => {
-      const personResponse = await request(app.getHttpServer())
-        .post('/people')
-        .send({
-          name: 'Fabricio',
-          email: 'fabricio@emial',
-          password: '@Bc123456',
-        })
-        .expect(HttpStatus.CREATED);
-      const response = await request(app.getHttpServer())
-        .get('/people' + personResponse.body.id)
-        .expect(HttpStatus.UNAUTHORIZED);
+describe('/people/:id (GET)', () => {
+  it('should return unauthorized when user is not logged', async () => {
+    const personResponse = await request(app.getHttpServer())
+      .post('/people')
+      .send({
+        name: 'Fabricio',
+        email: 'fabricio@email.com',
+        password: '@Bc123456',
+      })
+      .expect(HttpStatus.CREATED);
 
-      expect(response.body).toEqual({
-        message: 'Unauthorized',
-        error: 'Unauthorized',
-        statusCode: 401,
+    const response = await request(app.getHttpServer())
+      .get('/people/' + personResponse.body.id)
+      .expect(HttpStatus.UNAUTHORIZED);
+
+    expect(response.body).toEqual({
+      message: 'Unauthorized',
+      error: 'Unauthorized',
+      statusCode: 401,
+    });
+  });
+
+  it('should return the person when user is logged', async () => {
+    const createPersonDto = {
+      name: 'Fabricio',
+      email: 'fabricio@email.com',
+      password: '@Bc123456',
+    };
+
+    const personResponse = await request(app.getHttpServer())
+      .post('/people')
+      .send(createPersonDto)
+      .expect(HttpStatus.CREATED);
+
+    const loginResponse = await request(app.getHttpServer())
+      .post('/auth')
+      .send({
+        email: createPersonDto.email,
+        password: createPersonDto.password,
       });
 
+    const response = await request(app.getHttpServer())
+      .get('/people/' + personResponse.body.id)
+      .set('Authorization', `Bearer ${loginResponse.body.acessToken}`)
+      .expect(HttpStatus.OK);
+
+    expect(response.body).toEqual({
+      email: createPersonDto.email,
+      passwordHash: expect.any(String),
+      name: createPersonDto.name,
+      active: true,
+      createdAt: expect.any(String),
+      updatedAt: expect.any(String),
+      picture: '',
+      id: expect.any(Number),
     });
   });
 });
+})
