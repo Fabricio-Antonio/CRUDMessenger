@@ -7,11 +7,13 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { PeopleModule } from 'src/people/people.module';
 import { NotesUtils } from './notes.utils';
 import { MyDynamicModule } from 'src/my-dynamic/my-dynamic.module';
+import { EmailModule } from 'src/email/email.module';
 
 @Module({
   imports: [
     TypeOrmModule.forFeature([Note]),
     PeopleModule,
+    EmailModule,
     MyDynamicModule.register({
       apiKey: 'API KEY here',
       apiUrl: 'http://test.com',

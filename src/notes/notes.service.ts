@@ -1,4 +1,8 @@
-import { ForbiddenException, Injectable, NotFoundException } from '@nestjs/common';
+import {
+  ForbiddenException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { Note } from './entities/note.entity';
 import { CreateNoteDto } from './dto/create-note.dto';
 import { UpdateNoteDto } from './dto/update-note.dto';
@@ -8,6 +12,7 @@ import { PeopleService } from 'src/people/people.service';
 import { PaginationDto } from 'src/common/dto/pagination.dto';
 import { NotesUtils } from './notes.utils';
 import { TokenPayloadDto } from 'src/auth/dto/token.payload.dto';
+import { EmailService } from 'src/email/email.service';
 
 @Injectable()
 export class NotesService {
@@ -16,6 +21,7 @@ export class NotesService {
     private readonly noteRepository: Repository<Note>,
     private readonly peopleService: PeopleService,
     private readonly notesUtils: NotesUtils,
+    private readonly emailService: EmailService,
   ) {}
 
   throwNotFoundError() {
@@ -86,6 +92,12 @@ export class NotesService {
     const note = this.noteRepository.create(newNote);
     await this.noteRepository.save(note);
 
+    await this.emailService.sendEmail(
+      from.email,
+      `You recived a note from "${from.name}" <${to.email}>`,
+      createNoteDto.text,
+    );
+
     return {
       ...note,
       to: {
@@ -107,7 +119,7 @@ export class NotesService {
     const note = await this.findOne(id);
 
     if (note.from.id != Number(tokenPayload.sub)) {
-      throw new ForbiddenException('You are not allowed to update this note')
+      throw new ForbiddenException('You are not allowed to update this note');
     }
 
     note.text = updateNoteDto?.text ?? note.text;
@@ -121,7 +133,7 @@ export class NotesService {
     const note = await this.findOne(id);
 
     if (note.from.id != Number(tokenPayload.sub)) {
-      throw new ForbiddenException('You are not allowed to update this note')
+      throw new ForbiddenException('You are not allowed to update this note');
     }
 
     if (!note) return this.throwNotFoundError();
