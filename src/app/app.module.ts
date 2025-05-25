@@ -21,7 +21,7 @@ import { AuthModule } from 'src/auth/auth.module';
       database: 'postgres',
       autoLoadEntities: true,
       synchronize: true,
-      dropSchema: true,
+      dropSchema: false,
     }),
     NotesModule,
     PeopleModule,
