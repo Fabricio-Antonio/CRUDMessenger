@@ -13,6 +13,7 @@ import { PaginationDto } from 'src/common/dto/pagination.dto';
 import { NotesUtils } from './notes.utils';
 import { TokenPayloadDto } from 'src/auth/dto/token.payload.dto';
 import { EmailService } from 'src/email/email.service';
+import { ResponseNoteDto } from './dto/response-note.dto';
 
 @Injectable()
 export class NotesService {
@@ -28,7 +29,7 @@ export class NotesService {
     throw new NotFoundException('Note not found');
   }
 
-  async findAll(paginationDto?: PaginationDto) {
+  async findAll(paginationDto?: PaginationDto): Promise<ResponseNoteDto[]> {
     //console.log(this.notesUtils.invertStrintg('Hello World'));
     const { limit = 10, offset = 0 } = paginationDto;
 
@@ -53,7 +54,7 @@ export class NotesService {
     return notes;
   }
 
-  async findOne(id: number) {
+  async findOne(id: number): Promise<ResponseNoteDto> {
     const note = await this.noteRepository.findOne({
       where: {
         id,
@@ -77,7 +78,10 @@ export class NotesService {
     this.throwNotFoundError();
   }
 
-  async create(createNoteDto: CreateNoteDto, tokenPayload: TokenPayloadDto) {
+  async create(
+    createNoteDto: CreateNoteDto,
+    tokenPayload: TokenPayloadDto,
+  ): Promise<ResponseNoteDto> {
     const { fromId } = createNoteDto;
     const to = await this.peopleService.findOne(Number(tokenPayload.sub));
     const from = await this.peopleService.findOne(fromId);
@@ -115,7 +119,7 @@ export class NotesService {
     id: number,
     updateNoteDto: UpdateNoteDto,
     tokenPayload: TokenPayloadDto,
-  ) {
+  ): Promise<ResponseNoteDto> {
     const note = await this.findOne(id);
 
     if (note.from.id != Number(tokenPayload.sub)) {
@@ -129,14 +133,17 @@ export class NotesService {
     return note;
   }
 
-  async delete(id: number, tokenPayload: TokenPayloadDto) {
+  async delete(
+    id: number,
+    tokenPayload: TokenPayloadDto,
+  ): Promise<ResponseNoteDto> {
     const note = await this.findOne(id);
 
     if (note.from.id != Number(tokenPayload.sub)) {
       throw new ForbiddenException('You are not allowed to update this note');
     }
 
-    if (!note) return this.throwNotFoundError();
-    return this.noteRepository.remove(note);
+    await this.noteRepository.delete(note.id);
+    return note;
   }
 }
