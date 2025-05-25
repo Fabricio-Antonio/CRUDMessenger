@@ -2,15 +2,15 @@ export class ResponseNoteDto {
   id: number;
   text: string;
   read: boolean;
-  data: string;
-  createdAt?: string;
-  updatedAt?: string;
+  date: Date;
+  createdAt?: Date;
+  updatedAt?: Date;
   to: {
-    id: string;
+    id: number;
     name: string;
   };
   from: {
-    id: string;
+    id: number;
     name: string;
   };
 }
