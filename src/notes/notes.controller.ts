@@ -8,7 +8,6 @@ import {
   Delete,
   Query,
   UseGuards,
-  SetMetadata,
 } from '@nestjs/common';
 import { NotesService } from './notes.service';
 import { CreateNoteDto } from './dto/create-note.dto';
@@ -18,19 +17,45 @@ import { NotesUtils } from './notes.utils';
 import { AuthTokenGuard } from 'src/auth/guard/auth.token.guard';
 import { TokenPayload } from 'src/auth/params/token.payload.param';
 import { TokenPayloadDto } from 'src/auth/dto/token.payload.dto';
-import { SetRoutePolicy } from '../auth/config/decorators/set-route-policy.decorator';
-import { RoutePolicies } from '../auth/enum/route-policies.enum';
-import { ApiBearerAuth } from '@nestjs/swagger';
+import {
+  ApiBearerAuth,
+  ApiOperation,
+  ApiQuery,
+  ApiResponse,
+  ApiTags,
+  ApiParam,
+  ApiBody,
+} from '@nestjs/swagger';
 
 @UseGuards(AuthTokenGuard)
+@ApiBearerAuth()
+@ApiTags('Notes')
 @Controller('notes')
 export class NotesController {
   constructor(
     private readonly notesServices: NotesService,
     private readonly notesUtils: NotesUtils,
   ) {}
+
   // Find all notes
   @Get()
+  @ApiOperation({ summary: 'List all notes with pagination' })
+  @ApiQuery({
+    name: 'offset',
+    required: false,
+    example: 1,
+    description: 'Page number to start from',
+  })
+  @ApiQuery({
+    name: 'limit',
+    required: false,
+    example: 10,
+    description: 'Number of items per page',
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'List of notes retrieved successfully',
+  })
   async findAll(@Query() paginationDto: PaginationDto) {
     const notes = await this.notesServices.findAll(paginationDto);
     return notes;
@@ -38,14 +63,19 @@ export class NotesController {
 
   // Find one note
   @Get(':id')
+  @ApiOperation({ summary: 'Get a single note by ID' })
+  @ApiParam({ name: 'id', type: Number, example: 1, description: 'Note ID' })
+  @ApiResponse({ status: 200, description: 'Note retrieved successfully' })
+  @ApiResponse({ status: 404, description: 'Note not found' })
   findOne(@Param('id') id: number) {
     return this.notesServices.findOne(id);
   }
 
   // Create note
-  @UseGuards(AuthTokenGuard)
-  @ApiBearerAuth()
   @Post()
+  @ApiOperation({ summary: 'Create a new note' })
+  @ApiBody({ type: CreateNoteDto })
+  @ApiResponse({ status: 201, description: 'Note created successfully' })
   create(
     @Body() createNoteDto: CreateNoteDto,
     @TokenPayload() tokenPayload: TokenPayloadDto,
@@ -54,9 +84,12 @@ export class NotesController {
   }
 
   // Update note
-  @UseGuards(AuthTokenGuard)
   @Patch(':id')
-  @ApiBearerAuth()
+  @ApiOperation({ summary: 'Update an existing note' })
+  @ApiParam({ name: 'id', type: Number, example: 1, description: 'Note ID' })
+  @ApiBody({ type: UpdateNoteDto })
+  @ApiResponse({ status: 200, description: 'Note updated successfully' })
+  @ApiResponse({ status: 404, description: 'Note not found' })
   update(
     @Param('id') id: number,
     @Body() updateNoteDto: UpdateNoteDto,
@@ -66,9 +99,11 @@ export class NotesController {
   }
 
   // Delete note
-  @UseGuards(AuthTokenGuard)
   @Delete(':id')
-  @ApiBearerAuth()
+  @ApiOperation({ summary: 'Delete a note by ID' })
+  @ApiParam({ name: 'id', type: Number, example: 1, description: 'Note ID' })
+  @ApiResponse({ status: 200, description: 'Note deleted successfully' })
+  @ApiResponse({ status: 404, description: 'Note not found' })
   removeNote(
     @Param('id') id: number,
     @TokenPayload() tokenPayload: TokenPayloadDto,
