@@ -20,6 +20,7 @@ import { TokenPayload } from 'src/auth/params/token.payload.param';
 import { TokenPayloadDto } from 'src/auth/dto/token.payload.dto';
 import { SetRoutePolicy } from '../auth/config/decorators/set-route-policy.decorator';
 import { RoutePolicies } from '../auth/enum/route-policies.enum';
+import { ApiBearerAuth } from '@nestjs/swagger';
 
 @UseGuards(AuthTokenGuard)
 @Controller('notes')
@@ -30,11 +31,8 @@ export class NotesController {
   ) {}
   // Find all notes
   @Get()
-  @SetRoutePolicy(RoutePolicies.findAllNotes)
   async findAll(@Query() paginationDto: PaginationDto) {
-    return this.notesServices.findAll(paginationDto);
-
-    const notes = await this.notesServices.findAll();
+    const notes = await this.notesServices.findAll(paginationDto);
     return notes;
   }
 
@@ -46,6 +44,7 @@ export class NotesController {
 
   // Create note
   @UseGuards(AuthTokenGuard)
+  @ApiBearerAuth()
   @Post()
   create(
     @Body() createNoteDto: CreateNoteDto,
@@ -57,6 +56,7 @@ export class NotesController {
   // Update note
   @UseGuards(AuthTokenGuard)
   @Patch(':id')
+  @ApiBearerAuth()
   update(
     @Param('id') id: number,
     @Body() updateNoteDto: UpdateNoteDto,
@@ -68,6 +68,7 @@ export class NotesController {
   // Delete note
   @UseGuards(AuthTokenGuard)
   @Delete(':id')
+  @ApiBearerAuth()
   removeNote(
     @Param('id') id: number,
     @TokenPayload() tokenPayload: TokenPayloadDto,

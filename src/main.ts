@@ -12,6 +12,7 @@ async function bootstrap() {
     .setTitle('Notes API')
     .setDescription('Send notes to yours fiends and family')
     .setVersion('1.0')
+    .addBearerAuth()
     .build();
 
   const document = SwaggerModule.createDocument(app, documentBuilderConfig);
