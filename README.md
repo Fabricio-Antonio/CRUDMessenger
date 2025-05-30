@@ -18,7 +18,7 @@ It is my frist time in back-end, this is a simple project to learn about [Nest](
 ## Project Goal
 This project was born as a hands-on learning experience — a simple CRUD system with a real-world twist: sending messages to friends and family. More than just a code exercise, it’s a full-stack playground designed to sharpen backend and DevOps skills. <br>
 
-Users can create, view, edit, and delete, messages and their account an in a clean, secure environment. Under the hood, the app features JWT-based authentication, API documentation via Swagger, and is fully containerized with Docker. The project is also test-driven with Jest (in progress), and will be deployed on Google Cloud Platform (GCP) upon completion. <br>
+Users can create, view, edit, and delete, messages and their account an in a clean, secure environment. Under the hood, the app features JWT-based authentication, API documentation with Swagger, and is fully containerized with Docker. The project is also test-driven with Jest (in progress), and will be deployed on Google Cloud Platform (GCP) upon completion. <br>
 
 It’s not just about building an app — it’s about mastering the workflow behind modern web development. <br>
 
