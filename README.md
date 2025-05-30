@@ -13,7 +13,7 @@ This project is just to leran concepts about NestJS and back-end generally.
 
 ## Description
 
-It is my frist time in back-end, this is a simple project to learn about [Nest](https://github.com/nestjs/nest) framework TypeScript. My goal with this poject is learn about back-end generally, and some specific topics I’m interested: tests, Swagger, JWT, Docker, cloud (in special Google Cloud Plataform) and and delve into database.
+It is my frist time in back-end, this is a simple project to learn about [Nest](https://github.com/nestjs/nest) framework TypeScript. My goal with this poject is learn about back-end generally, and some specific topics I’m interested: tests, Swagger, JWT, Docker, cloud (in special Google Cloud Plataform) and delve into database.
 
 ## Project Goal
 This project was born as a hands-on learning experience — a simple CRUD system with a real-world twist: sending messages to friends and family. More than just a code exercise, it’s a full-stack playground designed to sharpen backend and DevOps skills. <br>
