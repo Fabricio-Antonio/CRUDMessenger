@@ -28,8 +28,8 @@ It’s not just about building an app — it’s about mastering the workflow be
 - [Nest](https://nestjs.com/) -  A progressive Node.js framework used to structure the application using modular, scalable architecture and TypeScript decorators.
 - [TypeORM](https://typeorm.io/) - ORM used for data modeling, migrations, and communication with the PostgreSQL database.
 - [PostgreSQL](https://www.postgresql.org/) - A robust open-source relational database used to store and manage user and message data.
-- [JWT](https://jwt.io/) - Used for API documentation, allowing developers to test and understand the available endpoints.
-- [Swagger](https://swagger.io/) - Testing framework used to write and run unit tests, ensuring code reliability and preventing regressions.
+- [JWT](https://jwt.io/) - Used for implementing stateless authentication and securing API routes.
+- [Swagger](https://swagger.io/) - Used for API documentation, allowing developers to test and understand the available endpoints.
 - [Jest](https://jestjs.io/) - Testing framework used to write and run unit tests, ensuring code reliability and preventing regressions.
 - [Docker](https://www.docker.com/) - Containerization platform used to standardize the development environment and prepare the app for production deployment.
 - [GCP](https://cloud.google.com/) - Target cloud provider for deploying the application, taking advantage of scalable infrastructure and cloud services.
