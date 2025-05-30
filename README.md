@@ -71,7 +71,7 @@ git clone https://github.com/Fabricio-Antonio/Nest-first-time.git
 cd Nest-first-time
 ```
 
-Create the .env file
+Create the .env file <br>
 Create a .env file in the root directory with the following content:
 
 ```env
