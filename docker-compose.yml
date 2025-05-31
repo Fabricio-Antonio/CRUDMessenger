@@ -1,7 +1,7 @@
 version: '3.8'
 
 services:
-  db:
+  postgres:
     image: postgres:17.5
     container_name: postgres
     restart: always
@@ -12,6 +12,8 @@ services:
       POSTGRES_USER: ${DB_USERNAME}
       POSTGRES_PASSWORD: ${DB_PASSWORD}
       POSTGRES_DB: ${DB_NAME}
+    networks:
+      - mynetwork
 
   app:
     build:
@@ -21,7 +23,10 @@ services:
     ports:
       - '3000:3000'
     depends_on:
-      - db
+      - postgres
+    networks:
+      - mynetwork
+    entrypoint: ["/wait-for-postgres.sh", "postgres", "npm", "run", "start:dev"]
     env_file: .env
     environment:
       DB_HOST: ${DB_HOST}
@@ -29,3 +34,7 @@ services:
       DB_USERNAME: ${DB_USERNAME}
       DB_PASSWORD: ${DB_PASSWORD}
       DB_NAME: ${DB_NAME}
+
+networks:
+  mynetwork:
+    driver: bridge

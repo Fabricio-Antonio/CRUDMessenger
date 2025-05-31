@@ -10,11 +10,11 @@ import { AuthModule } from 'src/auth/auth.module';
 
 @Module({
   imports: [
-    ConfigModule.forRoot({ isGlobal: true }), // Torna acessível em toda a aplicação
+    ConfigModule.forRoot({ isGlobal: true, envFilePath: '.env' }),
     ConfigModule.forRoot(),
     TypeOrmModule.forRoot({
       type: 'postgres',
-      host: 'postgres',
+      host: process.env.DB_HOST || 'postgres',
       port: 5432,
       username: 'postgres',
       password: '123456',
