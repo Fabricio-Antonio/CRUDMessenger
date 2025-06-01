@@ -38,26 +38,6 @@ Others tools
 - [Insomnia](https://insomnia.rest/download) - API client used for testing and debugging HTTP requests during development, especially useful for validating endpoints and authentication flows.
 - [DBeaver](https://dbeaver.io/) - Database management tool used to visualize, query, and manage the PostgreSQL database efficiently through a GUI.
 
-
-## Project setup
-
-```bash
-$ npm install
-```
-
-## Compile and run the project
-
-```bash
-# development
-$ npm run start
-
-# watch mode
-$ npm run start:dev
-
-# production mode
-$ npm run start:prod
-```
-
 ## Running the Project with Docker
 This project is fully containerized using Docker and Docker Compose, ensuring easy setup and consistent environments.
 
