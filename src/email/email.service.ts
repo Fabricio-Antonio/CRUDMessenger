@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import * as nodemailer from 'nodemailer';
-import { text } from 'stream/consumers';
+
 @Injectable()
 export class EmailService {
   private transporter: nodemailer.Transporter;
@@ -8,14 +8,16 @@ export class EmailService {
   constructor() {
     this.transporter = nodemailer.createTransport({
       host: process.env.EMAIL_HOST,
-      port: parseInt(process.env.EMAIL_PORT, 587),
-      secure: false, // user SSL or TLS (for production envaiorment)
+      port: parseInt(process.env.EMAIL_PORT || '587', 10),
+      secure: false, // use SSL or TLS (for production environment)
       auth: {
         user: process.env.EMAIL_USER,
         pass: process.env.EMAIL_PASS,
       },
+      tls: { rejectUnauthorized: false }, 
     });
   }
+
   async sendEmail(to: string, subject: string, content: string) {
     const mailOptions = {
       from: `"No Reply" <${process.env.EMIL_FROM}>`,
