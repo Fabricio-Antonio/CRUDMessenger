@@ -45,7 +45,10 @@ export class PeopleController {
   @ApiBearerAuth()
   @Get()
   @ApiOperation({ summary: 'Retrieve all people' })
-  @ApiResponse({ status: 200, description: 'List of people returned successfully' })
+  @ApiResponse({
+    status: 200,
+    description: 'List of people returned successfully',
+  })
   findAll() {
     return this.peopleService.findAll();
   }
@@ -95,7 +98,9 @@ export class PeopleController {
   @ApiBearerAuth()
   @UseInterceptors(FileInterceptor('file'))
   @Post('upload-picture')
-  @ApiOperation({ summary: 'Upload a profile picture for the authenticated user' })
+  @ApiOperation({
+    summary: 'Upload a profile picture for the authenticated user',
+  })
   @ApiConsumes('multipart/form-data')
   @ApiBody({
     schema: {
