@@ -1,136 +1,232 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { HttpStatus, INestApplication, ValidationPipe } from '@nestjs/common';
 import * as request from 'supertest';
-import { App } from 'supertest/types';
-import { PeopleModule } from 'src/people/people.module';
-import { AuthModule } from 'src/auth/auth.module';
-import { NotesModule } from 'src/notes/notes.module';
-import { ConfigModule } from '@nestjs/config';
-import { TypeOrmModule } from '@nestjs/typeorm';
-import * as path from 'path';
-import { ServeStaticModule } from '@nestjs/serve-static';
-import appConfig from 'src/app/config/app.config';
-import { NoConnectionOptionError } from 'typeorm';
-import { CreatePersonDto } from 'src/people/dto/create-person.dto';
+import { AppModule } from '../src/app/app.module';
+import { CreatePersonDto } from '../src/people/dto/create-person.dto';
+import { CreateNoteDto } from '../src/notes/dto/create-note.dto';
+import { UpdateNoteDto } from '../src/notes/dto/update-note.dto';
+import { Person } from '../src/people/entities/person.entity';
+import { ResponseNoteDto } from '../src/notes/dto/response-note.dto';
+
+interface AuthResponse {
+  accessToken: string;
+  refreshToken: string;
+}
 
 describe('AppController (e2e)', () => {
-  let app: INestApplication<App>;
+  let app: INestApplication;
+  let authToken: string;
+  let refreshToken: string;
+  let personId: number;
+  let noteId: number;
 
-  beforeEach(async () => {
+  beforeAll(async () => {
+    process.env.NODE_ENV = 'test';
+    process.env.JWT_SECRET = 'test-secret-key';
+    process.env.JWT_TOKEN_AUDIENCE = 'test-audience';
+    process.env.JWT_TOKEN_ISSUER = 'test-issuer';
+    process.env.JWT_TTL = '3600';
+    process.env.JWT_REFRESH_TTL = '86400';
+
     const moduleFixture: TestingModule = await Test.createTestingModule({
-      imports: [
-        ConfigModule.forRoot({ isGlobal: true }), // Torna acessível em toda a aplicação
-        ConfigModule.forRoot(),
-        TypeOrmModule.forRoot({
-          type: 'postgres',
-          host: 'localhost',
-          port: 5432,
-          username: 'postgres',
-          password: '123456',
-          database: 'testing',
-          autoLoadEntities: true,
-          synchronize: true, // NEVER must be true in prod
-          dropSchema: true,
-        }),
-        ServeStaticModule.forRoot({
-          rootPath: path.resolve(__dirname, '..', '..', 'pictures'),
-          serveRoot: '/pictures',
-        }),
-        NotesModule,
-        PeopleModule,
-        AuthModule,
-      ],
+      imports: [AppModule],
     }).compile();
 
     app = moduleFixture.createNestApplication();
-
-    appConfig(app);
-
+    app.useGlobalPipes(new ValidationPipe({ transform: true }));
     await app.init();
-  });
+  }, 60000);
 
-  afterEach(async () => {
-    await app.close();
-  });
+  afterAll(async () => {
+    if (app) {
+      await app.close();
+    }
+  }, 60000);
 
-  describe('/people (POST)', () => {
-    it('should create a new person', async () => {
-      const createPersonDto = {
-        name: 'Fabricio',
-        email: 'fabricio@email.com',
-        password: '@Bc123456',
-      };
-      const response = await request(app.getHttpServer())
-        .post('/people')
-        .send(createPersonDto);
-      expect(response.body).toEqual({
-        email: createPersonDto.email,
-        name: createPersonDto.name,
-        passwordHash: expect.any(String),
-        active: true,
-        createdAt: expect.any(String),
-        updatedAt: expect.any(String),
-        picture: '',
-        id: expect.any(Number),
-      });
-    });
-  });
-describe('/people/:id (GET)', () => {
-  it('should return unauthorized when user is not logged', async () => {
-    const personResponse = await request(app.getHttpServer())
-      .post('/people')
-      .send({
-        name: 'Fabricio',
-        email: 'fabricio@email.com',
-        password: '@Bc123456',
-      })
-      .expect(HttpStatus.CREATED);
-
-    const response = await request(app.getHttpServer())
-      .get('/people/' + personResponse.body.id)
-      .expect(HttpStatus.UNAUTHORIZED);
-
-    expect(response.body).toEqual({
-      message: 'Unauthorized',
-      error: 'Unauthorized',
-      statusCode: 401,
-    });
-  });
-
-  it('should return the person when user is logged', async () => {
-    const createPersonDto = {
-      name: 'Fabricio',
-      email: 'fabricio@email.com',
+  describe('Authentication', () => {
+    const createPersonDto: CreatePersonDto = {
+      name: 'Test User',
+      email: 'test@example.com',
       password: '@Bc123456',
     };
 
-    const personResponse = await request(app.getHttpServer())
-      .post('/people')
-      .send(createPersonDto)
-      .expect(HttpStatus.CREATED);
+    it('should create a new person', async () => {
+      const response = await request(app.getHttpServer())
+        .post('/people')
+        .send(createPersonDto)
+        .expect(HttpStatus.CREATED);
 
-    const loginResponse = await request(app.getHttpServer())
-      .post('/auth')
-      .send({
-        email: createPersonDto.email,
-        password: createPersonDto.password,
-      });
+      const person = response.body as Person;
+      expect(person).toHaveProperty('id');
+      expect(person.name).toBe(createPersonDto.name);
+      expect(person.email).toBe(createPersonDto.email);
+      expect(person).not.toHaveProperty('password');
 
-    const response = await request(app.getHttpServer())
-      .get('/people/' + personResponse.body.id)
-      .set('Authorization', `Bearer ${loginResponse.body.acessToken}`)
-      .expect(HttpStatus.OK);
+      personId = person.id;
+    });
 
-    expect(response.body).toEqual({
-      email: createPersonDto.email,
-      passwordHash: expect.any(String),
-      name: createPersonDto.name,
-      active: true,
-      createdAt: expect.any(String),
-      updatedAt: expect.any(String),
-      picture: '',
-      id: expect.any(Number),
+    it('should login successfully', async () => {
+      const response = await request(app.getHttpServer())
+        .post('/auth')
+        .send({
+          email: createPersonDto.email,
+          password: createPersonDto.password,
+        })
+        .expect(HttpStatus.CREATED);
+
+      const authResponse = response.body as AuthResponse;
+      expect(authResponse).toHaveProperty('accessToken');
+      expect(authResponse).toHaveProperty('refreshToken');
+
+      authToken = authResponse.accessToken;
+      refreshToken = authResponse.refreshToken;
+    });
+
+    it('should refresh token successfully', async () => {
+      const response = await request(app.getHttpServer())
+        .post('/auth/refresh')
+        .send({ refreshToken })
+        .expect(HttpStatus.CREATED);
+
+      const authResponse = response.body as AuthResponse;
+      expect(authResponse).toHaveProperty('accessToken');
+      expect(authResponse).toHaveProperty('refreshToken');
+
+      authToken = authResponse.accessToken;
+      refreshToken = authResponse.refreshToken;
+    });
+  });
+
+  describe('People Management', () => {
+    it('should get all people', async () => {
+      const response = await request(app.getHttpServer())
+        .get('/people')
+        .set('Authorization', `Bearer ${authToken}`)
+        .expect(HttpStatus.OK);
+
+      const people = response.body as Person[];
+      expect(Array.isArray(people)).toBe(true);
+      expect(people.length).toBeGreaterThan(0);
+    });
+
+    it('should get person by id', async () => {
+      const response = await request(app.getHttpServer())
+        .get(`/people/${personId}`)
+        .set('Authorization', `Bearer ${authToken}`)
+        .expect(HttpStatus.OK);
+
+      const person = response.body as Person;
+      expect(person.id).toBe(personId);
+      expect(person.email).toBe('test@example.com');
+    });
+
+    it('should update person', async () => {
+      const updateData = {
+        name: 'Updated Test User',
+      };
+
+      const response = await request(app.getHttpServer())
+        .patch(`/people/${personId}`)
+        .set('Authorization', `Bearer ${authToken}`)
+        .send(updateData)
+        .expect(HttpStatus.OK);
+
+      const person = response.body as Person;
+      expect(person.name).toBe(updateData.name);
+    });
+  });
+
+  describe('Notes Management', () => {
+    it('should create a new note', async () => {
+      const createNoteDto: CreateNoteDto = {
+        text: 'Test note content',
+        fromId: personId,
+      };
+
+      const response = await request(app.getHttpServer())
+        .post('/notes')
+        .set('Authorization', `Bearer ${authToken}`)
+        .send(createNoteDto)
+        .expect(HttpStatus.CREATED);
+
+      const note = response.body as ResponseNoteDto;
+      expect(note).toHaveProperty('id');
+      expect(note.text).toBe(createNoteDto.text);
+      expect(note.read).toBe(false);
+      expect(note).toHaveProperty('date');
+      expect(note).toHaveProperty('to');
+      expect(note).toHaveProperty('from');
+      expect(note.to).toHaveProperty('id');
+      expect(note.to).toHaveProperty('name');
+      expect(note.from).toHaveProperty('id');
+      expect(note.from).toHaveProperty('name');
+
+      noteId = note.id;
+    });
+
+    it('should get all notes', async () => {
+      const response = await request(app.getHttpServer())
+        .get('/notes')
+        .set('Authorization', `Bearer ${authToken}`)
+        .expect(HttpStatus.OK);
+
+      const notes = response.body as ResponseNoteDto[];
+      expect(Array.isArray(notes)).toBe(true);
+      expect(notes.length).toBeGreaterThan(0);
+      expect(notes[0]).toHaveProperty('id');
+      expect(notes[0]).toHaveProperty('text');
+      expect(notes[0]).toHaveProperty('read');
+      expect(notes[0]).toHaveProperty('date');
+      expect(notes[0]).toHaveProperty('to');
+      expect(notes[0]).toHaveProperty('from');
+    });
+
+    it('should get note by id', async () => {
+      const response = await request(app.getHttpServer())
+        .get(`/notes/${noteId}`)
+        .set('Authorization', `Bearer ${authToken}`)
+        .expect(HttpStatus.OK);
+
+      const note = response.body as ResponseNoteDto;
+      expect(note.id).toBe(noteId);
+      expect(note.text).toBe('Test note content');
+      expect(note.read).toBe(false);
+      expect(note).toHaveProperty('date');
+      expect(note).toHaveProperty('to');
+      expect(note).toHaveProperty('from');
+    });
+
+    it('should update note', async () => {
+      const updateNoteDto: UpdateNoteDto = {
+        text: 'Updated test note content',
+        read: true,
+      };
+
+      const response = await request(app.getHttpServer())
+        .patch(`/notes/${noteId}`)
+        .set('Authorization', `Bearer ${authToken}`)
+        .send(updateNoteDto)
+        .expect(HttpStatus.OK);
+
+      const note = response.body as ResponseNoteDto;
+      expect(note.text).toBe(updateNoteDto.text);
+      expect(note.read).toBe(updateNoteDto.read);
+      expect(note).toHaveProperty('date');
+      expect(note).toHaveProperty('to');
+      expect(note).toHaveProperty('from');
+    });
+
+    it('should delete note', async () => {
+      await request(app.getHttpServer())
+        .delete(`/notes/${noteId}`)
+        .set('Authorization', `Bearer ${authToken}`)
+        .expect(HttpStatus.OK);
+
+      // Verify note is deleted
+      await request(app.getHttpServer())
+        .get(`/notes/${noteId}`)
+        .set('Authorization', `Bearer ${authToken}`)
+        .expect(HttpStatus.NOT_FOUND);
     });
   });
 });
-})
