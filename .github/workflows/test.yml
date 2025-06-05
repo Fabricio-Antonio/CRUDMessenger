@@ -1,0 +1,97 @@
+name: Test
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    services:
+      postgres:
+        image: postgres:latest
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: 123456
+          POSTGRES_DB: testing
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '20'
+        cache: 'npm'
+
+    - name: Install dependencies
+      run: |
+        npm ci
+        npm install -g jest
+        echo "$(npm bin)" >> $GITHUB_PATH
+
+    - name: Verify Jest installation
+      run: |
+        which jest
+        jest --version
+
+    - name: Run linting
+      run: npm run lint
+
+    - name: Run unit tests
+      run: npm run test
+      env:
+        NODE_ENV: test
+        DB_HOST: localhost
+        DB_PORT: 5432
+        DB_USERNAME: postgres
+        DB_PASSWORD: 123456
+        DB_DATABASE: testing
+        JWT_SECRET: test-secret-key
+        JWT_TOKEN_AUDIENCE: test-audience
+        JWT_TOKEN_ISSUER: test-issuer
+        JWT_TTL: 3600
+        JWT_REFRESH_TTL: 86400
+        EMAIL_HOST: localhost
+        EMAIL_PORT: 1025
+        EMAIL_USER: test@example.com
+        EMAIL_PASS: password
+        EMAIL_FROM: noreply@example.com
+
+    - name: Run e2e tests
+      run: npm run test:e2e
+      env:
+        NODE_ENV: test
+        DB_HOST: localhost
+        DB_PORT: 5432
+        DB_USERNAME: postgres
+        DB_PASSWORD: 123456
+        DB_DATABASE: testing
+        JWT_SECRET: test-secret-key
+        JWT_TOKEN_AUDIENCE: test-audience
+        JWT_TOKEN_ISSUER: test-issuer
+        JWT_TTL: 3600
+        JWT_REFRESH_TTL: 86400
+        EMAIL_HOST: localhost
+        EMAIL_PORT: 1025
+        EMAIL_USER: test@example.com
+        EMAIL_PASS: password
+        EMAIL_FROM: noreply@example.com
+
+    - name: Upload test coverage
+      uses: actions/upload-artifact@v4
+      if: always()
+      with:
+        name: coverage
+        path: coverage/
+        retention-days: 7 
