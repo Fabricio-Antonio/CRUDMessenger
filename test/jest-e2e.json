@@ -11,5 +11,7 @@
   },
   "setupFiles": ["<rootDir>/.env.test"],
   "setupFilesAfterEnv": ["<rootDir>/setup.ts"],
-  "testTimeout": 30000
+  "testTimeout": 30000,
+  "forceExit": true,
+  "detectOpenHandles": true
 }
