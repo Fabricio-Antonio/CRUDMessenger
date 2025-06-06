@@ -10,5 +10,6 @@
     "^src/(.*)$": "<rootDir>/../src/$1"
   },
   "setupFiles": ["<rootDir>/.env.test"],
+  "setupFilesAfterEnv": ["<rootDir>/setup.ts"],
   "testTimeout": 30000
 }

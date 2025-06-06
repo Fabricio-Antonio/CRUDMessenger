@@ -17,6 +17,8 @@ describe('AppController (e2e)', () => {
   let personId: number;
   let noteId: number;
 
+  const getServer = (): Server => app.getHttpServer() as unknown as Server;
+
   beforeAll(async () => {
     process.env.NODE_ENV = 'test';
     process.env.JWT_SECRET = 'test-secret-key';
@@ -48,7 +50,7 @@ describe('AppController (e2e)', () => {
     };
 
     it('should create a new person', async () => {
-      const response = await request(app.getHttpServer() as unknown as Server)
+      const response = await request(getServer())
         .post('/people')
         .send(createPersonDto)
         .expect(HttpStatus.CREATED);
@@ -63,7 +65,7 @@ describe('AppController (e2e)', () => {
     });
 
     it('should login successfully', async () => {
-      const response = await request(app.getHttpServer() as unknown as Server)
+      const response = await request(getServer())
         .post('/auth')
         .send({
           email: createPersonDto.email,
@@ -80,7 +82,7 @@ describe('AppController (e2e)', () => {
     });
 
     it('should refresh token successfully', async () => {
-      const response = await request(app.getHttpServer() as unknown as Server)
+      const response = await request(getServer())
         .post('/auth/refresh')
         .send({ refreshToken })
         .expect(HttpStatus.CREATED);
@@ -96,7 +98,7 @@ describe('AppController (e2e)', () => {
 
   describe('People Management', () => {
     it('should get all people', async () => {
-      const response = await request(app.getHttpServer() as unknown as Server)
+      const response = await request(getServer())
         .get('/people')
         .set('Authorization', `Bearer ${authToken}`)
         .expect(HttpStatus.OK);
@@ -107,7 +109,7 @@ describe('AppController (e2e)', () => {
     });
 
     it('should get person by id', async () => {
-      const response = await request(app.getHttpServer() as unknown as Server)
+      const response = await request(getServer())
         .get(`/people/${personId}`)
         .set('Authorization', `Bearer ${authToken}`)
         .expect(HttpStatus.OK);
@@ -122,7 +124,7 @@ describe('AppController (e2e)', () => {
         name: 'Updated Test User',
       };
 
-      const response = await request(app.getHttpServer() as unknown as Server)
+      const response = await request(getServer())
         .patch(`/people/${personId}`)
         .set('Authorization', `Bearer ${authToken}`)
         .send(updateData)
@@ -140,7 +142,7 @@ describe('AppController (e2e)', () => {
         fromId: personId,
       };
 
-      const response = await request(app.getHttpServer() as unknown as Server)
+      const response = await request(getServer())
         .post('/notes')
         .set('Authorization', `Bearer ${authToken}`)
         .send(createNoteDto)
@@ -162,7 +164,7 @@ describe('AppController (e2e)', () => {
     });
 
     it('should get all notes', async () => {
-      const response = await request(app.getHttpServer() as unknown as Server)
+      const response = await request(getServer())
         .get('/notes')
         .set('Authorization', `Bearer ${authToken}`)
         .expect(HttpStatus.OK);
@@ -179,7 +181,7 @@ describe('AppController (e2e)', () => {
     });
 
     it('should get note by id', async () => {
-      const response = await request(app.getHttpServer() as unknown as Server)
+      const response = await request(getServer())
         .get(`/notes/${noteId}`)
         .set('Authorization', `Bearer ${authToken}`)
         .expect(HttpStatus.OK);
@@ -199,7 +201,7 @@ describe('AppController (e2e)', () => {
         read: true,
       };
 
-      const response = await request(app.getHttpServer() as unknown as Server)
+      const response = await request(getServer())
         .patch(`/notes/${noteId}`)
         .set('Authorization', `Bearer ${authToken}`)
         .send(updateNoteDto)
@@ -214,12 +216,12 @@ describe('AppController (e2e)', () => {
     });
 
     it('should delete note', async () => {
-      await request(app.getHttpServer() as unknown as Server)
+      await request(getServer())
         .delete(`/notes/${noteId}`)
         .set('Authorization', `Bearer ${authToken}`)
         .expect(HttpStatus.OK);
 
-      await request(app.getHttpServer() as unknown as Server)
+      await request(getServer())
         .get(`/notes/${noteId}`)
         .set('Authorization', `Bearer ${authToken}`)
         .expect(HttpStatus.NOT_FOUND);
