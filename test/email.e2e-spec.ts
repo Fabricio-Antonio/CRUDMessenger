@@ -23,16 +23,16 @@ describe('EmailService (e2e)', () => {
       disabledCommands: ['AUTH'],
       onData(stream, session, callback) {
         let mailData = '';
-        const readableStream = stream as unknown as Readable;
-        
+        const readableStream = stream as Readable;
+
         readableStream.on('data', (chunk: Buffer) => {
           mailData += chunk.toString();
         });
-        
+
         readableStream.on('end', () => {
           const mailFrom = session.envelope.mailFrom as SMTPServerAddress;
-          const rcptTo = session.envelope.rcptTo as SMTPServerAddress[];
-          
+          const rcptTo = session.envelope.rcptTo;
+
           receivedEmails.push({
             from: mailFrom?.address,
             to: rcptTo?.map(rcpt => rcpt.address),
@@ -49,7 +49,10 @@ describe('EmailService (e2e)', () => {
 
     await new Promise<void>(resolve => {
       smtpServer.listen(0, () => {
-        const port = (smtpServer.server?.address() as any).port;
+        const address = smtpServer.server?.address();
+        const port =
+          typeof address === 'object' && address !== null ? address.port : 0;
+
         process.env.EMAIL_HOST = 'localhost';
         process.env.EMAIL_PORT = port.toString();
         process.env.EMAIL_USER = 'test@example.com';
@@ -101,8 +104,8 @@ describe('EmailService (e2e)', () => {
     const subject = 'Test Email';
     const content = 'This is a test email content';
 
-    await expect(emailService.sendEmail(to, subject, content))
-      .rejects
-      .toThrow();
+    await expect(
+      emailService.sendEmail(to, subject, content),
+    ).rejects.toThrow();
   });
 });

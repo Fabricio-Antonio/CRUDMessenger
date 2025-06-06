@@ -16,6 +16,13 @@
     "forceConsistentCasingInFileNames": true,
     "noImplicitAny": false,
     "strictBindCallApply": false,
-    "noFallthroughCasesInSwitch": false
-  }
+    "noFallthroughCasesInSwitch": false,
+    "allowJs": true
+  },
+  "include": [
+    "src/**/*",
+    "test/**/*",
+    ".eslintrc.js",
+    "jest.config.js"
+  ]
 }

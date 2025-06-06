@@ -1,9 +1,8 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { NotesController } from './notes.controller';
 import { NotesService } from './notes.service';
-import { NotesUtils } from './notes.utils'; 
+import { NotesUtils } from './notes.utils';
 import { AuthTokenGuard } from '../auth/guard/auth.token.guard';
-import { ExecutionContext } from '@nestjs/common';
 import { CreateNoteDto } from './dto/create-note.dto';
 import { TokenPayloadDto } from '../auth/dto/token.payload.dto';
 
@@ -23,14 +22,17 @@ describe('NotesController', () => {
   };
 
   const mockAuthGuard = {
-    canActivate: jest.fn((context: ExecutionContext) => true),
+    canActivate: jest.fn(() => true),
   };
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
       controllers: [NotesController],
       providers: [
-        { provide: NotesService, useValue: mockNotesService },
+        {
+          provide: NotesService,
+          useValue: mockNotesService,
+        },
         { provide: NotesUtils, useValue: mockNotesUtils },
       ],
     })
@@ -39,6 +41,10 @@ describe('NotesController', () => {
       .compile();
 
     controller = module.get<NotesController>(NotesController);
+  });
+
+  it('should be defined', () => {
+    expect(controller).toBeDefined();
   });
 
   it('should create a note with correct argument', async () => {
@@ -63,6 +69,9 @@ describe('NotesController', () => {
     const result = await controller.create(argument, tokenPayload);
 
     expect(result).toEqual(expected);
-    expect(mockNotesService.create).toHaveBeenCalledWith(argument, tokenPayload);
+    expect(mockNotesService.create).toHaveBeenCalledWith(
+      argument,
+      tokenPayload,
+    );
   });
 });

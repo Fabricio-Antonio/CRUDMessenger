@@ -16,7 +16,9 @@ export class AuthController {
   constructor(private readonly authService: AuthService) {}
 
   @Post()
-  @ApiOperation({ summary: 'Authenticate user and return access/refresh tokens' })
+  @ApiOperation({
+    summary: 'Authenticate user and return access/refresh tokens',
+  })
   @ApiBody({ type: LoginDto })
   @ApiResponse({
     status: 201,

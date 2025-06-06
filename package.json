@@ -12,7 +12,7 @@
     "start:dev": "nest start --watch",
     "start:debug": "nest start --debug --watch",
     "start:prod": "node dist/main",
-    "lint": "eslint \"{src,apps,libs,test}/**/*.ts\" --fix",
+    "lint": "eslint . --fix",
     "test": "jest --maxWorkers=25%",
     "test:watch": "jest --watchAll --maxWorkers=15%",
     "test:cov": "jest --coverage --maxWorkers=20%",

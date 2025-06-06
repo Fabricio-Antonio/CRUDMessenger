@@ -2,7 +2,6 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { NotesService } from './notes.service';
 import { getRepositoryToken } from '@nestjs/typeorm';
 import { Note } from './entities/note.entity';
-import { Repository } from 'typeorm';
 import { PeopleService } from 'src/people/people.service';
 import { NotesUtils } from './notes.utils';
 import { EmailService } from 'src/email/email.service';
@@ -10,6 +9,7 @@ import { NotFoundException, ForbiddenException } from '@nestjs/common';
 import { CreateNoteDto } from './dto/create-note.dto';
 import { TokenPayloadDto } from 'src/auth/dto/token.payload.dto';
 import { UpdateNoteDto } from './dto/update-note.dto';
+import { Person } from 'src/people/entities/person.entity';
 
 const mockNote = {
   id: 1,
@@ -22,7 +22,6 @@ const mockNote = {
 
 describe('NotesService', () => {
   let service: NotesService;
-  let noteRepository: Repository<Note>;
 
   const mockPeopleService = {
     findOne: jest.fn(),
@@ -44,11 +43,22 @@ describe('NotesService', () => {
     delete: jest.fn(),
   };
 
+  const mockPersonRepository = {
+    findOne: jest.fn(),
+  };
+
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
       providers: [
         NotesService,
-        { provide: getRepositoryToken(Note), useValue: noteRepoMock },
+        {
+          provide: getRepositoryToken(Note),
+          useValue: noteRepoMock,
+        },
+        {
+          provide: getRepositoryToken(Person),
+          useValue: mockPersonRepository,
+        },
         { provide: PeopleService, useValue: mockPeopleService },
         { provide: NotesUtils, useValue: mockNotesUtils },
         { provide: EmailService, useValue: mockEmailService },
@@ -56,7 +66,6 @@ describe('NotesService', () => {
     }).compile();
 
     service = module.get<NotesService>(NotesService);
-    noteRepository = module.get<Repository<Note>>(getRepositoryToken(Note));
   });
 
   afterEach(() => {

@@ -5,8 +5,7 @@ import { LoginDto } from './dto/login.dto';
 import { RefreshTokenDto } from './dto/refresh-toke-token.dto';
 
 describe('AuthController', () => {
-  let authController: AuthController;
-  let authService: AuthService;
+  let controller: AuthController;
 
   const mockAuthService = {
     login: jest.fn(),
@@ -24,8 +23,7 @@ describe('AuthController', () => {
       ],
     }).compile();
 
-    authController = moduleRef.get<AuthController>(AuthController);
-    authService = moduleRef.get<AuthService>(AuthService);
+    controller = moduleRef.get<AuthController>(AuthController);
   });
 
   afterEach(() => {
@@ -46,7 +44,7 @@ describe('AuthController', () => {
 
       mockAuthService.login.mockResolvedValue(result);
 
-      expect(await authController.login(loginDto)).toEqual(result);
+      expect(await controller.login(loginDto)).toEqual(result);
       expect(mockAuthService.login).toHaveBeenCalledWith(loginDto);
     });
   });
@@ -64,8 +62,10 @@ describe('AuthController', () => {
 
       mockAuthService.refreshTokens.mockResolvedValue(result);
 
-      expect(await authController.refreshTokens(refreshTokenDto)).toEqual(result);
-      expect(mockAuthService.refreshTokens).toHaveBeenCalledWith(refreshTokenDto);
+      expect(await controller.refreshTokens(refreshTokenDto)).toEqual(result);
+      expect(mockAuthService.refreshTokens).toHaveBeenCalledWith(
+        refreshTokenDto,
+      );
     });
   });
 });

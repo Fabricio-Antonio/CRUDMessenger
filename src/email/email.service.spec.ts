@@ -15,7 +15,9 @@ describe('EmailService', () => {
       sendMail: sendMailMock,
     };
 
-    (nodemailer.createTransport as jest.Mock).mockReturnValue(createTransportMock);
+    (nodemailer.createTransport as jest.Mock).mockReturnValue(
+      createTransportMock,
+    );
 
     const module: TestingModule = await Test.createTestingModule({
       providers: [EmailService],

@@ -6,26 +6,20 @@ import {
 } from '@nestjs/common';
 
 @Injectable()
-export class ParseIntIdPipe implements PipeTransform {
-  transform(value: any, metadata: ArgumentMetadata) {
-    if (metadata.type !== 'param' || metadata.data !== 'id') {
-      return value;
+export class ParseIntIdPipe implements PipeTransform<string, number> {
+  transform(value: string, metadata: ArgumentMetadata): number {
+    const id = parseInt(value, 10);
+
+    if (isNaN(id)) {
+      throw new BadRequestException('Invalid ID format');
     }
 
-    const parsedValue = Number(value);
-
-    if (isNaN(parsedValue)) {
-      throw new BadRequestException('ParseIntIdPipe wait a numeric string.');
-    }
-
-    if (parsedValue < 0) {
-      throw new BadRequestException(
-        'ParsedIntIdPipe wait a number above than zero.',
-      );
+    if (id <= 0) {
+      throw new BadRequestException('ID must be a positive number');
     }
 
     console.log('PIPE value', value);
     console.log('PIPE metadata', metadata);
-    return value;
+    return id;
   }
 }
