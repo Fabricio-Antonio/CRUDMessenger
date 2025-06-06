@@ -55,6 +55,10 @@ export class NotesService {
   }
 
   async findOne(id: number): Promise<ResponseNoteDto> {
+    if (!id || isNaN(id)) {
+      this.throwNotFoundError();
+    }
+
     const note = await this.noteRepository.findOne({
       where: {
         id,
@@ -83,6 +87,10 @@ export class NotesService {
     tokenPayload: TokenPayloadDto,
   ): Promise<ResponseNoteDto> {
     const { fromId } = createNoteDto;
+    if (!fromId || isNaN(fromId)) {
+      throw new ForbiddenException('Invalid fromId');
+    }
+
     const to = await this.peopleService.findOne(Number(tokenPayload.sub));
     const from = await this.peopleService.findOne(fromId);
 
@@ -120,6 +128,10 @@ export class NotesService {
     updateNoteDto: UpdateNoteDto,
     tokenPayload: TokenPayloadDto,
   ): Promise<ResponseNoteDto> {
+    if (!id || isNaN(id)) {
+      this.throwNotFoundError();
+    }
+
     const note = await this.findOne(id);
 
     if (note.from.id != Number(tokenPayload.sub)) {
@@ -137,6 +149,10 @@ export class NotesService {
     id: number,
     tokenPayload: TokenPayloadDto,
   ): Promise<ResponseNoteDto> {
+    if (!id || isNaN(id)) {
+      this.throwNotFoundError();
+    }
+
     const note = await this.findOne(id);
 
     if (note.from.id != Number(tokenPayload.sub)) {
