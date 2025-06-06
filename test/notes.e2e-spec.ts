@@ -9,6 +9,13 @@ import { UpdateNoteDto } from '../src/notes/dto/update-note.dto';
 import { Person } from '../src/people/entities/person.entity';
 import { ResponseNoteDto } from '../src/notes/dto/response-note.dto';
 import { AuthResponseDto } from '../src/auth/dto/auth.response.dto';
+import { EmailService } from '../src/email/email.service';
+
+class MockEmailService {
+  async sendEmail() {
+    return Promise.resolve();
+  }
+}
 
 describe('AppController (e2e)', () => {
   let app: INestApplication;
@@ -29,7 +36,10 @@ describe('AppController (e2e)', () => {
 
     const moduleFixture: TestingModule = await Test.createTestingModule({
       imports: [AppModule],
-    }).compile();
+    })
+    .overrideProvider(EmailService)
+    .useClass(MockEmailService)
+    .compile();
 
     app = moduleFixture.createNestApplication();
     app.useGlobalPipes(new ValidationPipe({ transform: true }));
