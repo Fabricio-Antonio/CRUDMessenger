@@ -38,7 +38,7 @@ It’s not just about building an app — it’s about mastering the workflow be
 - [x] Swagger documentation
 - [X] Tests: unit and e2e
 - [x] Docker containerization
-- [ ] CI/CD pipeline with GitHub Actions
+- [x] CI/CD pipeline with GitHub Actions
 - [ ] Deploy to Google Cloud Run
 - [ ] Frontend with React+Next.js
 
