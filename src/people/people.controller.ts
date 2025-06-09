@@ -17,6 +17,7 @@ import { AuthTokenGuard } from 'src/auth/guard/auth.token.guard';
 import { TokenPayload } from 'src/auth/params/token.payload.param';
 import { TokenPayloadDto } from 'src/auth/dto/token.payload.dto';
 import { FileInterceptor } from '@nestjs/platform-express';
+import { ParseIntIdPipe } from 'src/common/pipes/parse-int-id.pipe';
 import {
   ApiBearerAuth,
   ApiOperation,
@@ -60,8 +61,8 @@ export class PeopleController {
   @ApiParam({ name: 'id', type: String, description: 'Person ID' })
   @ApiResponse({ status: 200, description: 'Person found successfully' })
   @ApiResponse({ status: 404, description: 'Person not found' })
-  findOne(@Param('id') id: string) {
-    return this.peopleService.findOne(+id);
+  findOne(@Param('id', ParseIntIdPipe) id: number) {
+    return this.peopleService.findOne(id);
   }
 
   @UseGuards(AuthTokenGuard)
@@ -73,11 +74,11 @@ export class PeopleController {
   @ApiResponse({ status: 200, description: 'Person updated successfully' })
   @ApiResponse({ status: 404, description: 'Person not found' })
   update(
-    @Param('id') id: string,
+    @Param('id', ParseIntIdPipe) id: number,
     @Body() updatePersonDto: UpdatePersonDto,
     @TokenPayload() tokenPayload: TokenPayloadDto,
   ) {
-    return this.peopleService.update(+id, updatePersonDto, tokenPayload);
+    return this.peopleService.update(id, updatePersonDto, tokenPayload);
   }
 
   @UseGuards(AuthTokenGuard)
@@ -88,10 +89,10 @@ export class PeopleController {
   @ApiResponse({ status: 200, description: 'Person deleted successfully' })
   @ApiResponse({ status: 404, description: 'Person not found' })
   remove(
-    @Param('id') id: string,
+    @Param('id', ParseIntIdPipe) id: number,
     @TokenPayload() tokenPayload: TokenPayloadDto,
   ) {
-    return this.peopleService.remove(+id, tokenPayload);
+    return this.peopleService.remove(id, tokenPayload);
   }
 
   @UseGuards(AuthTokenGuard)

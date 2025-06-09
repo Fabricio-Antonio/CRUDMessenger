@@ -1,13 +1,8 @@
-import {
-  ArgumentMetadata,
-  BadRequestException,
-  Injectable,
-  PipeTransform,
-} from '@nestjs/common';
+import { BadRequestException, Injectable, PipeTransform } from '@nestjs/common';
 
 @Injectable()
 export class ParseIntIdPipe implements PipeTransform<string, number> {
-  transform(value: string, metadata: ArgumentMetadata): number {
+  transform(value: string): number {
     const id = parseInt(value, 10);
 
     if (isNaN(id)) {
@@ -18,8 +13,6 @@ export class ParseIntIdPipe implements PipeTransform<string, number> {
       throw new BadRequestException('ID must be a positive number');
     }
 
-    console.log('PIPE value', value);
-    console.log('PIPE metadata', metadata);
     return id;
   }
 }

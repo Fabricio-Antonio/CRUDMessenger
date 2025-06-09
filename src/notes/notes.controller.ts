@@ -17,6 +17,7 @@ import { NotesUtils } from './notes.utils';
 import { AuthTokenGuard } from 'src/auth/guard/auth.token.guard';
 import { TokenPayload } from 'src/auth/params/token.payload.param';
 import { TokenPayloadDto } from 'src/auth/dto/token.payload.dto';
+import { ParseIntIdPipe } from 'src/common/pipes/parse-int-id.pipe';
 import {
   ApiBearerAuth,
   ApiOperation,
@@ -67,7 +68,7 @@ export class NotesController {
   @ApiParam({ name: 'id', type: Number, example: 1, description: 'Note ID' })
   @ApiResponse({ status: 200, description: 'Note retrieved successfully' })
   @ApiResponse({ status: 404, description: 'Note not found' })
-  findOne(@Param('id') id: number) {
+  findOne(@Param('id', ParseIntIdPipe) id: number) {
     return this.notesServices.findOne(id);
   }
 
@@ -91,7 +92,7 @@ export class NotesController {
   @ApiResponse({ status: 200, description: 'Note updated successfully' })
   @ApiResponse({ status: 404, description: 'Note not found' })
   update(
-    @Param('id') id: number,
+    @Param('id', ParseIntIdPipe) id: number,
     @Body() updateNoteDto: UpdateNoteDto,
     @TokenPayload() tokenPayload: TokenPayloadDto,
   ) {
@@ -105,7 +106,7 @@ export class NotesController {
   @ApiResponse({ status: 200, description: 'Note deleted successfully' })
   @ApiResponse({ status: 404, description: 'Note not found' })
   removeNote(
-    @Param('id') id: number,
+    @Param('id', ParseIntIdPipe) id: number,
     @TokenPayload() tokenPayload: TokenPayloadDto,
   ) {
     return this.notesServices.delete(id, tokenPayload);
