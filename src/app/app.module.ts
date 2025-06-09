@@ -57,6 +57,10 @@ interface DatabaseConfig {
 
         console.log('Database config:', {
           environment: isDocker ? 'docker' : 'local',
+          host: dbConfig.host,
+          port: dbConfig.port,
+          username: dbConfig.username,
+          database: dbConfig.database,
         });
         return config;
       },

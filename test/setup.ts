@@ -2,8 +2,7 @@ import { EmailService } from '../src/email/email.service';
 import { execSync } from 'child_process';
 
 beforeAll(() => {
-  execSync('node scripts/clean-test-db.js');
-
+  // Set environment variables for tests
   process.env.NODE_ENV = 'test';
   process.env.DB_HOST = 'localhost';
   process.env.DB_PORT = '5432';
@@ -20,6 +19,13 @@ beforeAll(() => {
   process.env.EMAIL_USER = 'test@example.com';
   process.env.EMAIL_PASS = 'password';
   process.env.EMAIL_FROM = 'noreply@example.com';
+
+  // Setup and clean test database
+  try {
+    execSync('node scripts/setup-test-db.js');
+  } catch (error) {
+    console.error('Error setting up test database:', error.message);
+  }
 
   const testFile = expect.getState().testPath;
   if (!testFile?.includes('email.e2e-spec.ts')) {

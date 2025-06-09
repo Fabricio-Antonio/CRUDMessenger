@@ -20,13 +20,6 @@ describe('AppController (e2e)', () => {
   const getServer = (): Server => app.getHttpServer() as unknown as Server;
 
   beforeAll(async () => {
-    process.env.NODE_ENV = 'test';
-    process.env.JWT_SECRET = 'test-secret-key';
-    process.env.JWT_TOKEN_AUDIENCE = 'test-audience';
-    process.env.JWT_TOKEN_ISSUER = 'test-issuer';
-    process.env.JWT_TTL = '3600';
-    process.env.JWT_REFRESH_TTL = '86400';
-
     const moduleFixture: TestingModule = await Test.createTestingModule({
       imports: [AppModule],
     }).compile();
