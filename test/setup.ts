@@ -2,7 +2,7 @@ import { EmailService } from '../src/email/email.service';
 import { execSync } from 'child_process';
 
 beforeAll(() => {
-  execSync('node scripts/clean-test-db.ts');
+  execSync('node scripts/clean-test-db.js');
 
   process.env.NODE_ENV = 'test';
   process.env.DB_HOST = 'localhost';
