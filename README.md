@@ -62,13 +62,12 @@ Create a ```.env``` file in the root directory with the following content:
 
 ```env
 # PostgreSQL
-DB_HOST=db
+DB_HOST=localhost
 DB_PORT=5432
-DB_USERNAME=your_db_user
-DB_PASSWORD=your_db_password
-DB_NAME=your_db_name
+DB_USERNAME=postgres
+DB_PASSWORD=postgres
+DB_NAME=postgres
 ```
-```DB_HOST``` must be set to db, which is the service name defined in docker-compose.yml.
 
 Build and run the containers
 ```bash
