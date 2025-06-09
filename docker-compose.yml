@@ -5,36 +5,49 @@ services:
     image: postgres:17.5
     container_name: postgres
     restart: always
-    env_file: .env
-    ports:
-      - '5432:5432'
     environment:
       POSTGRES_USER: ${DB_USERNAME}
       POSTGRES_PASSWORD: ${DB_PASSWORD}
       POSTGRES_DB: ${DB_NAME}
+    ports:
+      - '${DB_PORT}:5432'
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
     networks:
-      - mynetwork
+      - app-network
+    command: ["postgres", "-c", "password_encryption=md5"]
 
   app:
     build:
       context: .
       dockerfile: Dockerfile
     container_name: nest-app
+    restart: always
     ports:
-      - '3000:3000'
-    depends_on:
-      - postgres
-    networks:
-      - mynetwork
-    entrypoint: ["/wait-for-postgres.sh", "postgres", "npm", "run", "start:dev"]
-    env_file: .env
+      - '${PORT}:3000'
     environment:
-      DB_HOST: ${DB_HOST}
+      NODE_ENV: ${NODE_ENV}
+      DOCKER_ENV: 'true'
+      DB_HOST: postgres
       DB_PORT: ${DB_PORT}
       DB_USERNAME: ${DB_USERNAME}
       DB_PASSWORD: ${DB_PASSWORD}
       DB_NAME: ${DB_NAME}
 
+      TEST_DB_HOST: postgres
+      TEST_DB_PORT: ${DB_PORT}
+      TEST_DB_USERNAME: ${DB_USERNAME}
+      TEST_DB_PASSWORD: ${DB_PASSWORD}
+      TEST_DB_NAME: postgres_test
+    depends_on:
+      - postgres
+    networks:
+      - app-network
+
 networks:
-  mynetwork:
+  app-network:
     driver: bridge
+
+volumes:
+  postgres_data:
+    driver: local
