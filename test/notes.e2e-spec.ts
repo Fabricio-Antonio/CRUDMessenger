@@ -135,10 +135,10 @@ describe('AppController (e2e)', () => {
 
   describe('Notes Management', () => {
     it('should create a new note', async () => {
-      const createNoteDto: CreateNoteDto = {
-        text: 'Test note content',
+    const createNoteDto: CreateNoteDto = {
+      text: 'Test note content',
         fromId: personId,
-      };
+    };
 
       const response = await request(getServer())
         .post('/notes')
