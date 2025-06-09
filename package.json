@@ -9,7 +9,8 @@
     "build": "nest build",
     "format": "prettier --write \"src/**/*.ts\" \"test/**/*.ts\"",
     "start": "nest start",
-    "start:dev": "nest start --watch",
+    "start:dev": "NODE_ENV=development DOCKER_ENV=false nest start --watch",
+    "start:docker": "NODE_ENV=development DOCKER_ENV=true nest start",
     "start:debug": "nest start --debug --watch",
     "start:prod": "node dist/main",
     "lint": "eslint . --fix",
@@ -17,7 +18,7 @@
     "test:watch": "jest --watchAll --maxWorkers=15%",
     "test:cov": "jest --coverage --maxWorkers=20%",
     "test:debug": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand",
-    "test:e2e": "jest --config ./test/jest-e2e.json --maxWorkers=1"
+    "test:e2e": "NODE_ENV=test DOCKER_ENV=false ./node_modules/.bin/jest --config ./test/jest-e2e.json --maxWorkers=1"
   },
   "dependencies": {
     "@nestjs/common": "^11.0.1",
@@ -33,6 +34,7 @@
     "bcryptjs": "^3.0.2",
     "class-transformer": "^0.5.1",
     "class-validator": "^0.14.1",
+    "helmet": "^8.1.0",
     "nodemailer": "^7.0.3",
     "pg": "^8.11.3",
     "reflect-metadata": "^0.2.2",
@@ -91,6 +93,7 @@
     "testEnvironment": "node",
     "moduleNameMapper": {
       "^src/(.*)$": "<rootDir>/$1"
-    }
+    },
+    "setupFilesAfterEnv": ["../jest.setup.js"]
   }
 }
