@@ -21,6 +21,7 @@
   },
   "include": [
     "src/**/*",
+    "scripts/clean-test-db.js",
     "test/**/*",
     ".eslintrc.js",
     "jest.config.js"
