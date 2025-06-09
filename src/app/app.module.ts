@@ -3,39 +3,62 @@ import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { NotesModule } from 'src/notes/notes.module';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { ConfigModule } from '@nestjs/config';
+import { ConfigModule, ConfigService } from '@nestjs/config';
 import { PeopleModule } from 'src/people/people.module';
 import { NotesUtils } from '../notes/notes.utils';
 import { AuthModule } from 'src/auth/auth.module';
 
+interface DatabaseConfig {
+  host: string;
+  port: string;
+  username: string;
+  password: string;
+  database: string;
+}
+
 @Module({
   imports: [
-    ConfigModule.forRoot({ isGlobal: true, envFilePath: '.env' }),
+    ConfigModule.forRoot({
+      isGlobal: true,
+    }),
     TypeOrmModule.forRootAsync({
       imports: [ConfigModule],
-      useFactory: () => {
-        const isTest = process.env.NODE_ENV === 'test';
-        return {
-          type: 'postgres',
-          host: isTest ? 'localhost' : process.env.DB_HOST || 'postgres',
-          port: Number(process.env.DB_PORT) || 5432,
-          username: isTest ? 'postgres' : process.env.DB_USERNAME || 'postgres',
-          password: isTest ? '123456' : process.env.DB_PASSWORD || '123456',
-          database: isTest ? 'testing' : process.env.DB_DATABASE || 'postgres',
+      inject: [ConfigService],
+      useFactory: (configService: ConfigService) => {
+        const isDocker = configService.get<string>('DOCKER_ENV') === 'true';
+        const dbConfig: DatabaseConfig = {
+          host: configService.get<string>('DB_HOST') || 'localhost',
+          port: configService.get<string>('DB_PORT') || '5432',
+          username: configService.get<string>('DB_USERNAME') || 'postgres',
+          password: configService.get<string>('DB_PASSWORD') || 'postgres',
+          database: configService.get<string>('DB_NAME') || 'postgres',
+        };
+
+        const config = {
+          type: 'postgres' as const,
+          host: dbConfig.host,
+          port: parseInt(dbConfig.port, 10),
+          username: dbConfig.username,
+          password: dbConfig.password,
+          database: dbConfig.database,
           autoLoadEntities: true,
           synchronize: true,
-          dropSchema: isTest,
-          ssl: !isTest,
+          ssl: false,
           extra: {
             max: 20,
             connectionTimeoutMillis: 5000,
             query_timeout: 10000,
             statement_timeout: 10000,
           },
-          logging: isTest ? false : true,
-          retryAttempts: isTest ? 1 : 3,
-          retryDelay: isTest ? 1000 : 3000,
+          logging: false,
+          retryAttempts: 3,
+          retryDelay: 3000,
         };
+
+        console.log('Database config:', {
+          environment: isDocker ? 'docker' : 'local',
+        });
+        return config;
       },
     }),
     NotesModule,
