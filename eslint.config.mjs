@@ -6,10 +6,19 @@ import tseslint from 'typescript-eslint';
 
 export default tseslint.config(
   {
-    ignores: ['eslint.config.mjs'],
+    ignores: [
+      'eslint.config.mjs',
+      'dist/**',
+      'node_modules/**',
+      'coverage/**',
+      '*.js',
+      '*.d.ts',
+      'scripts/**',
+      'test/**',
+    ],
   },
   eslint.configs.recommended,
-  ...tseslint.configs.recommendedTypeChecked,
+  ...tseslint.configs.recommended,
   eslintPluginPrettierRecommended,
   {
     languageOptions: {
@@ -17,10 +26,10 @@ export default tseslint.config(
         ...globals.node,
         ...globals.jest,
       },
-      ecmaVersion: 5,
+      ecmaVersion: 2020,
       sourceType: 'module',
       parserOptions: {
-        projectService: true,
+        project: './tsconfig.json',
         tsconfigRootDir: import.meta.dirname,
       },
     },
