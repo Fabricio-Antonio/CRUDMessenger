@@ -15,7 +15,7 @@ jobs:
         image: postgres:latest
         env:
           POSTGRES_USER: postgres
-          POSTGRES_PASSWORD: 123456
+          POSTGRES_PASSWORD: postgres
           POSTGRES_DB: testing
         ports:
           - 5432:5432
@@ -57,7 +57,7 @@ jobs:
 
     - name: Check database connectivity
       run: |
-        PGPASSWORD=123456 psql -h localhost -p 5432 -U postgres -d testing -c "SELECT NOW();"
+        PGPASSWORD=postgres psql -h localhost -p 5432 -U postgres -d testing -c "SELECT NOW();"
 
     - name: Setup test database
       run: |
@@ -66,12 +66,12 @@ jobs:
         DB_HOST: localhost
         DB_PORT: 5432
         DB_USERNAME: postgres
-        DB_PASSWORD: 123456
+        DB_PASSWORD: postgres
         DB_NAME: testing
 
     - name: Verify database is ready
       run: |
-        PGPASSWORD=123456 psql -h localhost -p 5432 -U postgres -d testing -c "SELECT 'Database is ready' as status;"
+        PGPASSWORD=postgres psql -h localhost -p 5432 -U postgres -d testing -c "SELECT 'Database is ready' as status;"
 
     - name: Run linting
       run: npm run lint
@@ -83,7 +83,7 @@ jobs:
         DB_HOST: localhost
         DB_PORT: 5432
         DB_USERNAME: postgres
-        DB_PASSWORD: 123456
+        DB_PASSWORD: postgres
         DB_NAME: testing
         JWT_SECRET: test-secret-key
         JWT_TOKEN_AUDIENCE: test-audience
@@ -98,7 +98,7 @@ jobs:
 
     - name: Clean test database
       run: |
-        PGPASSWORD=123456 psql -h localhost -p 5432 -U postgres -d testing -c "
+        PGPASSWORD=postgres psql -h localhost -p 5432 -U postgres -d testing -c "
         DROP SCHEMA public CASCADE;
         CREATE SCHEMA public;
         GRANT ALL ON SCHEMA public TO postgres;
@@ -107,7 +107,7 @@ jobs:
 
     - name: Verify database before e2e tests
       run: |
-        PGPASSWORD=123456 psql -h localhost -p 5432 -U postgres -d testing -c "SELECT 'Database ready for e2e tests' as status;"
+        PGPASSWORD=postgres psql -h localhost -p 5432 -U postgres -d testing -c "SELECT 'Database ready for e2e tests' as status;"
 
     - name: Run e2e tests
       run: npm run test:e2e
@@ -116,7 +116,7 @@ jobs:
         DB_HOST: localhost
         DB_PORT: 5432
         DB_USERNAME: postgres
-        DB_PASSWORD: 123456
+        DB_PASSWORD: postgres
         DB_NAME: testing
         JWT_SECRET: test-secret-key
         JWT_TOKEN_AUDIENCE: test-audience
